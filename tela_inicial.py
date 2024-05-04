@@ -325,7 +325,7 @@ class Tela_Inicio(object):
         self.label_2 = QtWidgets.QLabel(parent=self.frame)
         self.label_2.setGeometry(QtCore.QRect(400, 180, 231, 231))
         self.label_2.setText("")
-        self.label_2.setPixmap(QtGui.QPixmap("../../Users/luist/OneDrive/Área de Trabalho/S.jpeg"))
+        self.label_2.setPixmap(QtGui.QPixmap("S.jpeg"))
         self.label_2.setObjectName("label_2")
         self.label_5 = QtWidgets.QLabel(parent=self.frame)
         self.label_5.setGeometry(QtCore.QRect(720, 210, 261, 221))
