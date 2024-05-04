@@ -1,4 +1,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtCore import QDate
+
 class Estoque(object):
     def abrir_estoque(self,Form,tela):
         self.tela = tela
@@ -106,6 +109,7 @@ class Estoque(object):
         self.pushButton_confirmar_new_item.setIconSize(QtCore.QSize(23, 23))
         self.pushButton_confirmar_new_item.setObjectName("pushButton_7")
         self.pushButton_confirmar_new_item.hide()
+        self.pushButton_confirmar_new_item.clicked.connect(self.add_estoque)
 
         item = self.tabela_estoque.horizontalHeaderItem(0)
         item.setText("Item")
@@ -124,6 +128,7 @@ class Estoque(object):
 
         for colum in range(1, self.tabela_estoque.columnCount()):
             self.increase_column_width(colum, 135)
+        self.atualiza_estoque()
 
     def analise(self):
         if self.tela.new_item_aberto == True:
@@ -178,6 +183,7 @@ class Estoque(object):
             self.Combounidade = QtWidgets.QComboBox(parent=self.frame)
             self.Combounidade.setGeometry(QtCore.QRect(290, 160, 180, 31))
             self.Combounidade.setObjectName("Combounidade")
+            self.Combounidade.addItem("Unidade - qt")
             self.Combounidade.addItem("Metros - m")
             self.Combounidade.addItem("Peso - Kg")
             self.Combounidade.addItem("Volume - L")
@@ -206,3 +212,119 @@ class Estoque(object):
             self.pesquisar_estoque.hide()
             self.pushButton_new_item.hide()
             self.tabela_estoque.hide()
+    def generar_numero(self):
+        data = QDate.currentDate()
+        dia = data.day()
+        mes = data.month()
+        import random
+        random_numbers = ''.join(str(random.randint(0, 9)) for _ in range(4))
+        generated_number = f"{dia:02}{mes:02}{random_numbers}"
+        self.id = int(generated_number)
+    def atualiza_estoque(self):
+        import mysql.connector
+        host = "monorail.proxy.rlwy.net"
+        port = 30980
+        user = "root"
+        password = "RXlnFIuFEKMvnYsMaPWvDimjLdGyoJVv"
+        database = "railway"
+
+        try:
+            connection = mysql.connector.connect(
+                host=host,
+                port=port,
+                user=user,
+                password=password,
+                database=database
+            )
+
+            if connection.is_connected():
+                print("Conexão ao MySQL bem-sucedida.")
+
+                cursor = connection.cursor()
+
+                query = "SELECT * FROM estoque"
+                cursor.execute(query)
+                leitura = cursor.fetchall()
+                self.tabela_estoque.clearContents()
+                self.tabela_estoque.setRowCount(0)
+                for linha in leitura:
+
+                    row = self.tabela_estoque.rowCount()
+                    self.tabela_estoque.insertRow(row)
+
+                    for column, valor in enumerate(linha):
+                        item = QtWidgets.QTableWidgetItem(str(valor))
+                        item.setTextAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+                        if item is None:
+                            item = QtWidgets.QTableWidgetItem(str(""))
+                        if column == 0:
+                            self.tabela_estoque.setVerticalHeaderItem(row, item)
+                            continue
+                        if column!= 9:
+                            self.tabela_estoque.setItem(row, column-1, item)
+                        button_widget = QtWidgets.QPushButton("Comprar Item")
+                        #button_widget.clicked.connect(lambda state, row=row: self.comprar(row))
+                        self.tabela_estoque.setCellWidget(row, 9, button_widget)
+
+
+
+        except mysql.connector.Error as e:
+            print("Erro ao conectar ao MySQL:", e)
+
+        finally:
+            # Fechando a conexão com o banco de dados
+            if 'connection' in locals() and connection.is_connected():
+                cursor.close()
+                connection.close()
+                print("Conexão ao MySQL encerrada.")
+    def add_estoque(self):
+        import mysql.connector
+        host = "monorail.proxy.rlwy.net"
+        port = 30980
+        user = "root"
+        password = "RXlnFIuFEKMvnYsMaPWvDimjLdGyoJVv"
+        database = "railway"
+
+        try:
+            connection = mysql.connector.connect(
+                host="monorail.proxy.rlwy.net",
+                port=30980,
+                user="root",
+                password="RXlnFIuFEKMvnYsMaPWvDimjLdGyoJVv",
+                database="railway"
+            )
+
+            if connection.is_connected():
+                print("Conexão ao MySQL bem-sucedida.")
+
+                unidade = self.Combounidade.currentText()
+                value = 0
+                value_str = str(value)
+                cursor = connection.cursor()
+                data_hoje = QDate.currentDate()
+
+                self.id = 0
+                self.generar_numero()
+                data_formatada = data_hoje.toString('dd/MM/yyyy')
+                query = "INSERT INTO estoque (id,item, descricao,unidade,quantidade,ultima_aqui, marca,precounico) VALUES (%s,%s,%s, %s, %s,%s,%s, %s)"
+                values = (f"{self.id}",f"{self.nome_item.text()}", f"{self.descricao.toPlainText()}",f"{unidade}",f"{value_str}",' / / /',f"{self.marca_item.text()}","",)
+                cursor.execute(query, values)
+
+                msg_box = QMessageBox()
+                msg_box.setIcon(QMessageBox.Icon.Information)
+                msg_box.setWindowTitle("AVISO")
+                msg_box.setText("Item Cadastrado!")
+                msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+                reply = msg_box.exec()
+
+                connection.commit()
+
+
+        except mysql.connector.Error as e:
+            print("Erro ao conectar ao MySQL:", e)
+
+        finally:
+            if 'connection' in locals() and connection.is_connected():
+                cursor.close()
+                connection.close()
+                print("Conexão ao MySQL encerrada.")
