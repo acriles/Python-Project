@@ -14,7 +14,7 @@ class Estoque(object):
         self.pesquisar_estoque.setStyleSheet("border: 2px solid #737373; border-radius: 10px; background-color: white;")
         self.pesquisar_estoque.setObjectName("pesquisar_estoque")
         self.pesquisar_estoque.show()
-        icon = QtGui.QIcon('lupa.png')
+        icon = QtGui.QIcon('resources/assets/a_lupa.png')
         self.pesquisar_estoque.setPlaceholderText("Pesquisar Item")
         self.pesquisar_estoque.addAction(icon, QtWidgets.QLineEdit.ActionPosition.LeadingPosition)
 
@@ -74,7 +74,7 @@ class Estoque(object):
                                                "                    color: black;\n"
                                                "                }")
         icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap("botao-adicionar.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon6.addPixmap(QtGui.QPixmap("resources/assets/a_botao_adicionar.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.pushButton_new_item.setIcon(icon6)
         self.pushButton_new_item.setIconSize(QtCore.QSize(23, 23))
         self.pushButton_new_item.setObjectName("pushButton_7")
@@ -105,7 +105,7 @@ class Estoque(object):
                                                "                    color: black;\n"
                                                "                }")
         icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap("botao-adicionar.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon6.addPixmap(QtGui.QPixmap("resources/assets/a_botao_adicionar.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.pushButton_confirmar_new_item.setIcon(icon6)
         self.pushButton_confirmar_new_item.setIconSize(QtCore.QSize(23, 23))
         self.pushButton_confirmar_new_item.setObjectName("pushButton_7")

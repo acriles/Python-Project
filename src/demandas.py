@@ -239,7 +239,7 @@ class Demandas(object):
                                                "                    color: black;\n"
                                                "                }")
         icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap("botao-adicionar.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon6.addPixmap(QtGui.QPixmap("resources/assets/a_botao_adicionar.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off) # Icone do botão
         self.pushButton_confirmar_new_demanda.setIcon(icon6)
         self.pushButton_confirmar_new_demanda.setIconSize(QtCore.QSize(23, 23))
         self.pushButton_confirmar_new_demanda.setObjectName("pushButton_7")
@@ -412,7 +412,7 @@ class Demandas(object):
                 break
             try:
                 img_data = requests.get(img_url).content
-                with open(f"{query}/image_{i + 1}.jpg", 'wb') as f:
+                with open(f"resources/assets/{query}/image_{i + 1}.jpg", 'wb') as f: # Salvando a imagem, acho que deve ser em resources/products ou algo assim
                     f.write(img_data)
                 print(f"Imagem {i + 1} baixada com sucesso.")
             except Exception as e:
@@ -483,7 +483,7 @@ class Demandas(object):
         file_label = QtWidgets.QPushButton(name)
 
         image_label = QtWidgets.QLabel()
-        pixmap = QtGui.QPixmap(image_path)
+        pixmap = QtGui.QPixmap(f"resources/assets/{image_path}") # Carregando a imagem 
         image_label.setPixmap(pixmap)
 
         layout.addWidget(image_label)
