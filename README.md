@@ -6,6 +6,8 @@ Este projeto foi desenvolvido como trabalho final para a disciplina de Programa�
 
 O programa Stoquee consiste em um app desktop para gerenciamento de estoque, onde os usuários podem visualizar, adicionar e editar itens do estoque, além de realizar consultas e realizar ações específicas relacionadas ao estoque.
 
+**Aviso:** As pastas `libs`, `resources` e `src` foram adicionadas à estrutura do projeto, mas ainda não contêm os programas ou arquivos específicos. Elas foram criadas como parte do planejamento do projeto para organização futura.
+
 ## Funções
 
 O projeto atualmente inclui as seguintes funcionalidades:
