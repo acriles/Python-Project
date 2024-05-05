@@ -1,0 +1,10 @@
+# The officially supported versions of the following packages are their
+# python3-* equivalent distributed in Ubuntu 22.04 and Debian 11
+# no version pinning to avoid OS perturbations unless metioned otherwise
+mysql-connector-python
+requests
+screenshot
+beautifulsoup4
+selenium
+google_images_search
+google

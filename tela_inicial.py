@@ -1,3 +1,4 @@
+# Part of Stoquee. See LICENSE file for full copyright and licensing details.
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QMenu
 from PyQt6.QtGui import QAction
