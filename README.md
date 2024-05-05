@@ -6,7 +6,6 @@ Este projeto foi desenvolvido como trabalho final para a disciplina de Programa�
 
 O programa Stoquee consiste em um app desktop para gerenciamento de estoque, onde os usuários podem visualizar, adicionar e editar itens do estoque, além de realizar consultas e realizar ações específicas relacionadas ao estoque.
 
-**Aviso:** As pastas `libs`, `resources` e `src` foram adicionadas à estrutura do projeto, mas ainda não contêm os programas ou arquivos específicos. Elas foram criadas como parte do planejamento do projeto para organização futura.
 
 ## Funções
 
@@ -49,7 +48,7 @@ Requisitos do Sistema:
 1. Abra o prompt de comando do Windows.
 2. Navegue até o diretório do projeto
 3. Execute o seguinte comando para instalar as dependências necessárias: pip install -r requirements.txt
-4. Execute o seguinte comando para iniciar o programa: python tela_inicial.py
+4. Execute o seguinte comando para iniciar o programa: python main.py
 
 
 ## Links e Referências
