@@ -2,12 +2,20 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QMessageBox
 from PyQt6.QtCore import QDate
-
+from PyQt6.QtGui import QIcon
+import mysql.connector
+# A classe Estoque é a janela principal da aplicação.
 class Estoque(object):
-    def abrir_estoque(self,Form,tela):
+
+    # O método abrir_estoque tem a função de criar uma tela.
+    # É um método de interface gráfica. Este método cria frames, labels e botões, e conecta esses widgets às suas respectivas funções.
+
+    def abrir_estoque(self,Form=None,tela=None) -> None:
         self.tela = tela
         self.frame = self.tela.frame_estoque
+        self.frame_new =  self.tela.frame_new_item
         self.frame.show()
+        self.frame_new.hide()
         self.tela.label.setText("Estoque")
         self.pesquisar_estoque = QtWidgets.QLineEdit(parent=self.frame)
         self.pesquisar_estoque.setGeometry(QtCore.QRect(320, 70, 431, 21))
@@ -17,6 +25,9 @@ class Estoque(object):
         icon = QtGui.QIcon('resources/assets/a_lupa.png')
         self.pesquisar_estoque.setPlaceholderText("Pesquisar Item")
         self.pesquisar_estoque.addAction(icon, QtWidgets.QLineEdit.ActionPosition.LeadingPosition)
+        self.pesquisar_estoque.textChanged.connect(self.pesquisar)
+
+        self.editable = False
 
         self.tabela_estoque = QtWidgets.QTableWidget(parent=self.frame)
         self.tabela_estoque.setGeometry(QtCore.QRect(250, 130, 991, 541))
@@ -25,6 +36,41 @@ class Estoque(object):
         font.setBold(True)
         font.setWeight(75)
         self.tabela_estoque.show()
+
+        self.tabela_alt = QtWidgets.QTableWidget()
+        self.tabela_alt2 = QtWidgets.QTableWidget()
+
+        self.pushButton_confirmar_alteracao = QtWidgets.QPushButton('Confirmar', parent=self.frame)
+        self.pushButton_confirmar_alteracao.setGeometry(QtCore.QRect(1200, 50, 111, 31))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        font.setWeight(75)
+        self.pushButton_confirmar_alteracao.setFont(font)
+        self.pushButton_confirmar_alteracao.setStyleSheet("QPushButton {\n"
+                                                          "                    border: 2px solid #2E3D48 ;\n"
+                                                          "                    border-radius: 10px;\n"
+                                                          "                    background-color: (131, 131, 131);\n"
+                                                          "                    color: #2E3D48;\n"
+                                                          "                }\n"
+                                                          "\n"
+                                                          "                QPushButton:hover {\n"
+                                                          "                    background-color: #DDDDDD;  /* Change this to your desired hover color */\n"
+                                                          "                    color: rgb(0, 0, 0);\n"
+                                                          "                }\n"
+                                                          "\n"
+                                                          "                QPushButton:pressed {\n"
+                                                          "                    background-color: white;  /* Change this to your desired pressed color */\n"
+                                                          "                    color: black;\n"
+                                                          "                }")
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(QtGui.QPixmap("resources/assets/a_botao_adicionar.png"), QtGui.QIcon.Mode.Normal,
+                        QtGui.QIcon.State.Off)  # Icone do botão
+        self.pushButton_confirmar_alteracao.setIcon(icon6)
+        self.pushButton_confirmar_alteracao.setIconSize(QtCore.QSize(23, 23))
+        self.pushButton_confirmar_alteracao.setObjectName("pushButton_7")
+        self.pushButton_confirmar_alteracao.clicked.connect(lambda: self.altera_table('Não Tabela'))
+        self.pushButton_confirmar_alteracao.hide()
 
         self.tabela_estoque.setFont(font)
         self.tabela_estoque.setStyleSheet("background-color: transparent;\n"
@@ -130,8 +176,12 @@ class Estoque(object):
         for colum in range(1, self.tabela_estoque.columnCount()):
             self.increase_column_width(colum, 135)
         self.atualiza_estoque()
+        self.tabela_estoque.setEditTriggers(QtWidgets.QTableWidget.EditTrigger.NoEditTriggers)
 
-    def analise(self):
+        self.analise_edit_tabela = 'Nenhum'
+        self.tabela_estoque.doubleClicked.connect(lambda: self.altera_table('Tabela'))
+
+    def analise(self) -> None:
         if self.tela.new_item_aberto == True:
             self.nome_item.hide()
             self.nome_item_label.hide()
@@ -149,10 +199,13 @@ class Estoque(object):
             self.tabela_estoque.show()
             self.tela.new_item_aberto = False
 
-    def increase_column_width(self, column, width):
+    # Método increase_column_width define o tamanho das colunas de acordo com a quantidade de caracteres da coluna.
+    # Assim a coluna fica com o tamanho correto.
+    def increase_column_width(self, column=int, width=int):
         self.tabela_estoque.setColumnWidth(column, width)
 
-    def criar_item(self):
+    # O método criar_item é um método gráfico que abre a parte de criar um item novo no estoque.
+    def criar_item(self) -> None:
 
         if self.tela.new_item_aberto == False:
             self.tela.label.setText("Cadastrar Item")
@@ -213,7 +266,106 @@ class Estoque(object):
             self.pesquisar_estoque.hide()
             self.pushButton_new_item.hide()
             self.tabela_estoque.hide()
-    def generar_numero(self):
+
+    # Método altera_table usado alterar a tabela e salvar as alterações.
+    def altera_table(self,nivel=str)-> None:
+        if self.analise_edit_tabela != nivel :
+            colum_item = 0
+            colum_preco_unitario = 0
+            colum_ultima_aqui = 0
+            colum_quantidade = 0
+            colum_marca = 0
+            colum_unidade = 0
+            colum_desc = 0
+
+            for colum in range(self.tabela_estoque.columnCount()):
+                item_pac = self.tabela_estoque.horizontalHeaderItem(colum)
+
+                if item_pac.text() == 'Descrição do Item':
+                    colum_desc = colum
+                if item_pac.text() == 'Unidade do Item':
+                    colum_unidade = colum
+                if item_pac.text() == "Item":
+                    colum_item = colum
+                if item_pac.text() == "Quantidade no Estoque":
+                    colum_quantidade = colum
+                if item_pac.text() == 'Marca':
+                    colum_marca = colum
+                if item_pac.text() == 'Preço Unitário':
+                    colum_preco_unitario = colum
+                if item_pac.text() == 'Ultima Aquisição':
+                    colum_ultima_aqui = colum
+
+            self.lista_modificacoes = []
+            if self.tabela_estoque.rowCount() > 0:
+                self.editable = not self.editable
+                self.tabela_estoque.setEditTriggers(
+                    QtWidgets.QTableWidget.EditTrigger.AllEditTriggers if self.editable else QtWidgets.QTableWidget.EditTrigger.NoEditTriggers)
+
+                if self.editable:
+                    self.analise_edit_tabela = "Tabela"
+                    self.copiadora()
+
+                    self.pushButton_confirmar_alteracao.show()
+                    self.pushButton_new_item.hide()
+
+                    msg_box = QMessageBox()
+                    msg_box.setIcon(QMessageBox.Icon.Information)
+                    msg_box.setWindowTitle("AVISO")
+                    msg_box.setText("A tabela está habilitada para edição")
+                    icon = QIcon('resources/assets/warning.ico')
+                    msg_box.setWindowIcon(icon)
+                    msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+                    msg_box.exec()
+                else:
+
+                    self.analise_edit_tabela = 'Nenhum'
+                    self.modificao()
+                    if len(self.lista_modificacoes) != 0:
+                        msg_box = QMessageBox()
+                        msg_box.setIcon(QMessageBox.Icon.Information)
+                        msg_box.setWindowTitle("AVISO")
+                        msg_box.setText("Confirmar Alteração ?")
+                        icon = QIcon('warning.ico')
+                        msg_box.setWindowIcon(icon)
+                        msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+                        reply = msg_box.exec()
+                        if reply == QMessageBox.StandardButton.Yes:
+                            msg_box = QMessageBox()
+                            msg_box.setIcon(QMessageBox.Icon.Information)
+                            msg_box.setWindowTitle("AVISO")
+                            msg_box.setText("Alteração Concluída com Sucesso!")
+                            icon = QIcon(
+                                'resources/assets/warning.ico')
+                            msg_box.setWindowIcon(icon)
+                            msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+                            reply = msg_box.exec()
+
+                            for row in self.lista_modificacoes:
+                                id = self.tabela_estoque.verticalHeaderItem(row)
+                                item = self.tabela_estoque.item(row, colum_item)
+                                descricao = self.tabela_estoque.item(row, colum_desc)
+                                preco_unitario = self.tabela_estoque.item(row, colum_preco_unitario)
+                                ultima_aqui = self.tabela_estoque.item(row, colum_ultima_aqui)
+                                marca = self.tabela_estoque.item(row, colum_marca)
+                                quantidade = self.tabela_estoque.item(row, colum_quantidade)
+                                unidade = self.tabela_estoque.item(row, colum_unidade)
+                                self.alt_banco(item, descricao, unidade, quantidade, marca, preco_unitario, ultima_aqui, id)
+                    else:
+                        msg_box = QMessageBox()
+                        msg_box.setIcon(QMessageBox.Icon.Information)
+                        msg_box.setWindowTitle("AVISO")
+                        msg_box.setText("Nenhuma Alteração Realizada")
+                        icon = QIcon('resources/assets/warning.ico')
+                        msg_box.setWindowIcon(icon)
+                        msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+                        msg_box.exec()
+
+                    self.pushButton_confirmar_alteracao.hide()
+                    self.pushButton_new_item.show()
+
+    # Método generar_numero usado para gerar um número aleatório.
+    def generar_numero(self)-> None:
         data = QDate.currentDate()
         dia = data.day()
         mes = data.month()
@@ -221,8 +373,10 @@ class Estoque(object):
         random_numbers = ''.join(str(random.randint(0, 9)) for _ in range(4))
         generated_number = f"{dia:02}{mes:02}{random_numbers}"
         self.id = int(generated_number)
-    def atualiza_estoque(self):
-        import mysql.connector
+
+    # O método atualiza_estoque faz conexão e lê o database e atualiza a tabela de estoque.
+
+    def atualiza_estoque(self)-> None:
         host = "monorail.proxy.rlwy.net"
         port = 30980
         user = "root"
@@ -278,8 +432,9 @@ class Estoque(object):
                 cursor.close()
                 connection.close()
                 print("Conexão ao MySQL encerrada.")
-    def add_estoque(self):
-        import mysql.connector
+
+    # Método add_estoque usado para adicionar novos itens ao dabase de estoque.
+    def add_estoque(self)-> None:
         host = "monorail.proxy.rlwy.net"
         port = 30980
         user = "root"
@@ -329,3 +484,77 @@ class Estoque(object):
                 cursor.close()
                 connection.close()
                 print("Conexão ao MySQL encerrada.")
+
+    # Método copiadora copia a tabela de estoque.
+    def copiadora(self)-> None:
+        conta_linha = self.tabela_estoque.rowCount()
+        conta_coluna = self.tabela_estoque.columnCount()
+        self.tabela_alt.setColumnCount(conta_coluna)
+        self.tabela_alt.setRowCount(conta_linha)
+        for analisa_linha in range(conta_linha):
+            for analisa_coluna in range(conta_coluna - 1):
+                item = self.tabela_estoque.item(analisa_linha, analisa_coluna + 1)
+                if item is not None:
+                    item_text = item.text()
+                    item_copy = QtWidgets.QTableWidgetItem(item_text)
+                    self.tabela_alt.setItem(analisa_linha, analisa_coluna + 1, item_copy)
+
+    # Método copiadora2 copia a tabela do estoque para uma segunda tabela.
+    def copiadora2(self)-> None:
+        conta_linha = self.tabela_estoque.rowCount()
+        conta_coluna = self.tabela_estoque.columnCount()
+        self.tabela_alt2.setColumnCount(conta_coluna)
+        self.tabela_alt2.setRowCount(conta_linha)
+        for analisa_linha in range(conta_linha):
+            for analisa_coluna in range(conta_coluna - 1):
+                item = self.tabela_estoque.item(analisa_linha, analisa_coluna + 1)
+                if item is not None:
+                    item_text = item.text()
+                    item_copy = QtWidgets.QTableWidgetItem(item_text)
+                    self.tabela_alt2.setItem(analisa_linha, analisa_coluna + 1, item_copy)
+
+    # Método moficacao verifica se ouve alguma modificação na tabela. E pega qual o item alterado.
+    def modificao(self)-> None:
+        self.copiadora2()
+
+        conta_linha = self.tabela_alt2.rowCount()
+        conta_coluna = self.tabela_alt2.columnCount()
+        for analisa_linha in range(conta_linha):
+            for analisa_coluna in range(conta_coluna - 1):
+                item = self.tabela_alt2.item(analisa_linha, analisa_coluna + 1)
+                item2 = self.tabela_alt.item(analisa_linha, analisa_coluna + 1)
+                if item is not None and item2 is not None:
+                    if item.text() != item2.text():
+                        self.lista_modificacoes.append(analisa_linha)
+
+    # Método alt_banco altera o database no respectivo item alterado na tabela.
+    def alt_banco(self,item=str,descricao=str,unidade=str,quantidade=int,marca=str,precounico=int,ultima_aqui=str,id=int)-> None:
+
+        try:
+            conexao = mysql.connector.connect(
+                host="monorail.proxy.rlwy.net",
+                port=30980,
+                user="root",
+                password="RXlnFIuFEKMvnYsMaPWvDimjLdGyoJVv",
+                database="railway"
+            )
+            cursor = conexao.cursor()
+            comando = f'UPDATE estoque SET item = "{item.text()}",descricao = "{descricao.text()}",unidade = "{unidade.text()}", quantidade = "{quantidade.text()}", ultima_aqui = "{ultima_aqui.text()}", precounico = "{precounico.text()}", marca = "{marca.text()}"  WHERE id = "{id.text()}"'
+
+            cursor.execute(comando)
+            conexao.commit()
+            cursor.close()
+            conexao.close()
+        except mysql.connector.Error as error:
+            print("Erro ao conectar ao MySQL:", error)
+
+    # Método pesquisar usado para fazer pesquisa na tabela.
+    def pesquisar(self, pesquisa=str)-> None:
+        for row in range(self.tabela_estoque.rowCount()):
+            item = self.tabela_estoque.item(row, 0)
+            item2 = self.tabela_estoque.item(row, 1)
+            if item is not None:
+                if pesquisa.lower() in item.text().lower() or pesquisa.lower() in item2.text().lower():
+                    self.tabela_estoque.showRow(row)
+                else:
+                    self.tabela_estoque.hideRow(row)
