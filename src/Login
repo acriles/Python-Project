@@ -1,0 +1,255 @@
+from PyQt6.QtGui import QIcon,QPixmap
+from PyQt6 import QtCore, QtGui, QtWidgets
+import mysql.connector
+from PyQt6.QtWidgets import QMessageBox, QVBoxLayout, QWidget
+from PyQt6.QtCore import Qt, QTimer
+
+# A classe ClickableLabel é uma subclasse personalizada de QLabel que emite um sinal quando clicada.
+class ClickableLabel(QtWidgets.QLabel):
+    # Sinal personalizado emitido quando o label é clicado
+    clicked = QtCore.pyqtSignal()
+
+    # Método que captura o evento de clique do mouse
+    def mousePressEvent(self, event):
+        self.clicked.emit()
+# A classe Login é a janela principal da aplicação.
+
+class Login(object):
+
+    # O método login tem a função de criar uma tela.
+    # É um método de interface gráfica. Este método cria frames, labels e botões, e conecta esses widgets às suas respectivas funções.
+
+    def login(self, Form):
+        Form.setObjectName("Form")
+        Form.setFixedSize(612, 567)
+
+        icon = QIcon('resources/assets/bender.jfif')
+        Form.setWindowIcon(icon)
+        Form.setStyleSheet("background-color: rgb(0, 74, 112);")
+        self.frame = QtWidgets.QFrame(parent=Form)
+        self.frame.setGeometry(QtCore.QRect(80, 190, 461, 341))
+        self.frame.setStyleSheet("background-color: rgba(0, 0, 0,0.2);\n"
+"border: 2px solid while;\n"
+"                               border-radius: 10px;")
+        self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
+        self.frame.setObjectName("frame")
+
+        self.user = QtWidgets.QLineEdit(parent=self.frame)
+        self.user.setGeometry(QtCore.QRect(100, 70, 241, 31))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.user.setFont(font)
+        self.user.setStyleSheet("color: rgb(255, 255, 255);")
+        self.user.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.user.setObjectName("user")
+        self.password = QtWidgets.QLineEdit(parent=self.frame)
+        self.password.setGeometry(QtCore.QRect(100, 160, 241, 31))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.password.setFont(font)
+        self.password.setStyleSheet("color: rgb(255, 255, 255);")
+        self.password.setFrame(True)
+        self.password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
+        self.password.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.password.setObjectName("password")
+        self.state = True
+
+        icon = QtGui.QIcon(
+            'resources/assets/escondido.png')
+        pixmap = icon.pixmap(25, 25)
+        self.show_password_checkbox = ClickableLabel(parent=self.frame)
+        self.show_password_checkbox.setPixmap(pixmap)
+        self.show_password_checkbox.setGeometry(QtCore.QRect(350, 160, 50, 31))
+        self.show_password_checkbox.setStyleSheet('border:none;'
+                                                  'background-color: transparent;')
+        self.show_password_checkbox.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.show_password_checkbox.setCursor(QtCore.Qt.CursorShape.OpenHandCursor)
+        self.show_password_checkbox.clicked.connect(self.toggle_password_visibility)
+
+        self.login = QtWidgets.QPushButton(parent=self.frame)
+        self.login.setGeometry(QtCore.QRect(150, 230, 141, 31))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.login.setFont(font)
+        self.login.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.login.setStyleSheet("QPushButton{\n"
+"    background-color: rgb(0, 0, 0);\n"
+"    color: rgb(255, 255, 255);\n"
+"    border-radius:10px;\n"
+"}\n"
+"QPushButton:hover{\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    color: rgb(0, 0, 0);\n"
+"}")
+        self.login.setObjectName("login")
+
+
+        self.login_2 = QtWidgets.QPushButton(parent=self.frame)
+        self.login_2.setGeometry(QtCore.QRect(180, 280, 91, 21))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.login_2.setFont(font)
+        self.login_2.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.login_2.setStyleSheet("QPushButton{\n"
+"    background-color:transparent;\n"
+"    color: rgb(255, 255, 255);\n"
+"    border-radius:10px;\n"
+"   border:  transparent;\n"
+"}\n"
+"QPushButton:hover{\n"
+"    background-color: rgba(255, 255, 255,0.2);\n"
+"    color: rgb(0, 0, 0);\n"
+"   border:  transparent;\n"
+"\n"
+"}")
+        self.login_2.setObjectName("login_2")
+        self.login_2.clicked.connect(lambda :self.criar_conta(Form))
+        self.login.clicked.connect(lambda :self.logar(Form))
+
+        self.label_2 = QtWidgets.QLabel(parent=self.frame)
+        self.label_2.setGeometry(QtCore.QRect(50, 160, 41, 31))
+        self.label_2.setStyleSheet("background-color:none;")
+        self.label_2.setText("")
+        self.label_2.setPixmap(QtGui.QPixmap("resources/assets/cadeado-desbloqueado.png"))
+        self.label_2.setScaledContents(True)
+        self.label_2.setObjectName("label_2")
+
+        self.label_3 = QtWidgets.QLabel(parent=self.frame)
+        self.label_3.setGeometry(QtCore.QRect(50, 70, 41, 31))
+        self.label_3.setStyleSheet("background-color:none;")
+        self.label_3.setText("")
+        self.label_3.setPixmap(QtGui.QPixmap("resources/assets/sombra-de-usuario-masculino.png"))
+        self.label_3.setScaledContents(True)
+        self.label_3.setObjectName("label_3")
+        self.label_3.show()
+
+        self.label = QtWidgets.QLabel(parent=Form)
+        self.label.setGeometry(QtCore.QRect(190, 40, 221, 171))
+        self.label.setText("")
+        self.label.setPixmap(QtGui.QPixmap("resources/assets/icon_title.png"))
+        self.label.setScaledContents(True)
+        self.label.setObjectName("label")
+        self.label.raise_()
+        self.frame.raise_()
+        self.user_label = QtWidgets.QLabel('Usuário não Encotrado!',self.frame)
+        self.user_label.setStyleSheet('color: red;'
+                                         'border:none;'
+                                         'background-color: transparent;')
+        self.user_label.setGeometry(QtCore.QRect(100, 105, 281, 31))
+        self.user_label.hide()
+
+        self.senha_label = QtWidgets.QLabel('Senha Incorreta!', self.frame)
+        self.senha_label.setStyleSheet('color: red;'
+                                      'border:none;'
+                                      'background-color: transparent;')
+        self.senha_label.setGeometry(QtCore.QRect(100, 196, 281, 31))
+        self.senha_label.hide()
+
+        self.user.textChanged.connect(self.ocultar_user_label)
+        self.password.textChanged.connect(self.ocultar_user_label)
+
+        self.Definir_Nomes(Form)
+        QtCore.QMetaObject.connectSlotsByName(Form)
+        Form.setTabOrder(self.user, self.password)
+        Form.setTabOrder(self.password, self.login)
+        Form.setTabOrder(self.login, self.login_2)
+
+    # O método toggle_password_visibility permite alternar a visibilidade da senha,
+    # permitindo que o usuário escolha entre exibir ou ocultar a senha enquanto digita.
+    def toggle_password_visibility(self) -> None:
+        if self.state == True:
+            self.password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Normal)
+            icon = QtGui.QIcon(
+                'resources/assets/olho.png')
+            pixmap = icon.pixmap(25, 25)
+            self.show_password_checkbox.setPixmap(pixmap)
+            self.state = False
+
+        else:
+            self.password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
+            icon = QtGui.QIcon(
+                'resources/assets/escondido.png')
+            pixmap = icon.pixmap(25, 25)
+            self.show_password_checkbox.setPixmap(pixmap)
+            self.state = True
+
+    # O método ocultar_user_label oculta as labels que indicam se o usuário ou a senha estão corretos.
+    def ocultar_user_label(self) -> None:
+        self.user_label.hide()
+        self.senha_label.hide()
+
+    # O método logar conecta-se ao banco de dados para verificar se as credenciais (usuário e senha) existem.
+    def logar(self,Form=None) ->  None:
+        conexao = mysql.connector.connect(
+            host="monorail.proxy.rlwy.net",
+            port=30980,
+            user="root",
+            password="RXlnFIuFEKMvnYsMaPWvDimjLdGyoJVv",
+            database="railway"
+        )
+        cursor = conexao.cursor()
+
+        comando = 'SELECT * FROM Conta'
+        cursor.execute(comando)
+        leitura = cursor.fetchall()
+
+        cont = 0
+        reply = None
+        for linha in leitura:
+            if len(linha)>0:
+                cont+=1
+                if linha[1] == self.user.text():
+                    if linha[3] == self.password.text():
+                        from tela_inicial import Tela_Inicio
+                        self.janela_inicial = QtWidgets.QMainWindow()
+                        self.tela_inicial = Tela_Inicio()
+                        self.linha1 = linha[1]
+                        self.linha2 = linha[2]
+                        self.tela_espera(Form)
+                        break
+                    else:
+                        self.password.clear()
+                        if reply == None:
+                            self.senha_label.show()
+                        break
+                if linha[0] != self.user.text() and cont == len(leitura):
+                    self.password.clear()
+                    self.user.clear()
+                    if reply == None:
+                        self.user_label.show()
+        cursor.close()
+        conexao.close()
+    # Método tela_espera inicia a tela incial da aplicação.
+    def tela_espera(self,Form=None) ->None:
+        self.tela_inicial.setup(self.janela_inicial, self.linha1,self.linha2)
+        self.janela_inicial.show()
+
+        Form.close()
+
+    # Esse método Definir_Nomes tem a função gráfica de definir os nomes de alguns labels e botões fixos.
+    # Ou seja, que não mudam os nomes.
+    def Definir_Nomes(self, Form=None) ->None:
+        _translate = QtCore.QCoreApplication.translate
+        Form.setWindowTitle(_translate("Form", "Estoquinho"))
+        self.user.setPlaceholderText(_translate("Form", "Usuário"))
+        self.password.setPlaceholderText(_translate("Form", "Senha"))
+        self.login.setText(_translate("Form", "Login"))
+        self.login_2.setText(_translate("Form", "Criar Conta"))
+
+    # O método criar_conta tem a função de abrir o arquivo 'Criar_Conta.py' e mudar para a parte de criar a conta no software.
+
+    def criar_conta(self,Form):
+        self.frame.hide()
+        self.label.hide()
+        from  Criar_Conta import Criar_Conta
+        self.criar_cont = Criar_Conta()
+        self.criar_cont.criar_conta_principal(Form,self)
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    Form = QtWidgets.QWidget()
+    ui = Login()
+    ui.login(Form)
+    Form.show()
+    sys.exit(app.exec())
