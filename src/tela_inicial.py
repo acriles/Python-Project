@@ -1,10 +1,18 @@
 # Part of Stoquee. See LICENSE file for full copyright and licensing details.
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QMenu
-from PyQt6.QtGui import QAction
+from PyQt6.QtGui import QAction,QIcon
 
+# A classe Tela_Inicio representa a Tela inicial do software e todas as suas conexões o seguimento do estoque.
 class Tela_Inicio(object):
-    def setupUi(self, Form):
+
+    # O método setup tem a função de criar a tela principal.
+    # É um método de interface gráfica. Este método cria frames, labels e botões, e conecta esses widgets às suas respectivas funções.
+    def setup(self, Form = None, user = str,nome_user = str) -> None:
+        self.config_Aberta = False
+
+        icon = QIcon('resources/assets/bender.jfif')
+        Form.setWindowIcon(icon)
         Form.setObjectName("Form")
         Form.showMaximized()
         self.Form = Form
@@ -19,6 +27,10 @@ class Tela_Inicio(object):
         self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame.setObjectName("frame")
+        self.frame.mousePressEvent = lambda event: self.toggle_frame_visibility(self.frame)
+        self.frame.show()
+
+        self.frame.setGeometry(QtCore.QRect(0, 0, 1366, 768))
 
         self.frame_demandas = QtWidgets.QFrame(parent=Form)
         self.frame_demandas.setStyleSheet("background-color: rgb(255, 255, 255);")
@@ -36,6 +48,14 @@ class Tela_Inicio(object):
         self.frame_estoque.hide()
         self.frame_estoque.setGeometry(QtCore.QRect(0, 0, 2000, 1000))
 
+        self.frame_new_item = QtWidgets.QFrame(parent=Form)
+        self.frame_new_item.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.frame_new_item.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+        self.frame_new_item.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
+        self.frame_new_item.setObjectName("frame_new_item")
+        self.frame_new_item.hide()
+        self.frame_new_item.setGeometry(QtCore.QRect(0, 0, 2000, 1000))
+
         self.frame_2 = QtWidgets.QFrame(parent=self.frame)
         self.frame_2.setGeometry(QtCore.QRect(0, 0, 241, 541))
         self.frame_2.setStyleSheet("\n"
@@ -43,7 +63,6 @@ class Tela_Inicio(object):
         self.frame_2.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame_2.setObjectName("frame_2")
-
 
         self.pushButton_estoque = QtWidgets.QPushButton(parent=self.frame_2)
         self.pushButton_estoque.setGeometry(QtCore.QRect(20, 240, 201, 35))
@@ -122,6 +141,20 @@ class Tela_Inicio(object):
         self.menu.addAction(self.action2)
         self.menu.addAction(self.action3)
 
+        self.menu.setStyleSheet("""
+                    QMenu {
+                        background-color: #DDDDDD;  /* Cor de fundo */
+                        border: 1px solid black;   /* Borda */
+                    }
+                    QMenu::item {
+                        background-color: transparent;
+                        padding: 8px 16px;  /* Espaçamento interno */
+                    }
+                    QMenu::item:selected {
+                        background-color: #a8a8a8;  /* Cor de fundo do item selecionado */
+                    }
+                """)
+
         self.pushButton_config = QtWidgets.QPushButton(parent=self.frame_2)
         self.pushButton_config.setGeometry(QtCore.QRect(20, 340, 201, 35))
         font = QtGui.QFont()
@@ -150,6 +183,7 @@ class Tela_Inicio(object):
         self.pushButton_config.setIcon(icon2)
         self.pushButton_config.setIconSize(QtCore.QSize(30, 30))
         self.pushButton_config.setObjectName("pushButton_config")
+        self.pushButton_config.clicked.connect(lambda: self.abrir_configuracoes(Form))
 
         self.pushButton_fechar_frame_options = QtWidgets.QPushButton(parent=self.frame_2)
         self.pushButton_fechar_frame_options.setGeometry(QtCore.QRect(100, 470, 41, 31))
@@ -215,8 +249,9 @@ class Tela_Inicio(object):
         self.label_3.setText("")
         self.label_3.setPixmap(QtGui.QPixmap("resources/assets/a_capturar.png"))
         self.label_3.setObjectName("label_3")
-        self.label_4 = QtWidgets.QLabel(parent=self.frame_2)
-        self.label_4.setGeometry(QtCore.QRect(90, 150, 71, 20))
+        name = self.abreviar_nome(nome_user)
+        self.label_4 = QtWidgets.QLabel(name,parent=self.frame_2)
+        self.label_4.setGeometry(QtCore.QRect(40, 150, 110, 20))
 
         font = QtGui.QFont()
         font.setPointSize(14)
@@ -326,30 +361,38 @@ class Tela_Inicio(object):
         self.label_2 = QtWidgets.QLabel(parent=self.frame)
         self.label_2.setGeometry(QtCore.QRect(400, 180, 231, 231))
         self.label_2.setText("")
-        self.label_2.setPixmap(QtGui.QPixmap("S.jpeg"))
+        self.label_2.setPixmap(QtGui.QPixmap("resources/assets/S.jpeg"))
         self.label_2.setObjectName("label_2")
         self.label_5 = QtWidgets.QLabel(parent=self.frame)
         self.label_5.setGeometry(QtCore.QRect(720, 210, 261, 221))
         self.label_5.setText("")
-        self.label_5.setPixmap(QtGui.QPixmap("resources/assets/a_UFMG.png"))
+        self.label_5.setPixmap(QtGui.QPixmap("resources/assets/a_UF.png"))
         self.label_5.setObjectName("label_5")
         self.horizontalLayout.addWidget(self.frame)
 
-        self.retranslateUi(Form)
+        self.Definir_Nomes(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
+        for widget in self.frame.findChildren(QtWidgets.QWidget):
+            if widget == self.abrir_options:
+                continue
+            else:
+                widget.show()
 
-    def retranslateUi(self, Form):
+    # Esse método Definir_Nomes tem a função gráfica de definir os nomes de alguns labels e botões fixos.
+    # Ou seja, que não mudam os nomes.
+    def Definir_Nomes(self, Form=None) -> None:
+
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
         self.pushButton_estoque.setText(_translate("Form", "Estoque             "))
         self.pushButton_demandas.setText(_translate("Form", "Demandas       "))
         self.pushButton_config.setText(_translate("Form", "Configurações   "))
         self.pushButton_funcionario.setText(_translate("Form", "Funcionarios    "))
-        self.label_4.setText(_translate("Form", "NOME"))
         self.label.setText(_translate("Form", "Controle de Estoque"))
         self.pushButton_Início.setText(_translate("Form", "Início"))
 
-    def fechar_options(self):
+    # O método fechar_options tem a função gráfica de abrir e fechar o menu com as opções de Demanda, Estoque e Configurações.
+    def fechar_options(self) -> None:
         if self.frame_2.isVisible():
             self.frame_2.hide()
             self.abrir_options.show()
@@ -361,8 +404,9 @@ class Tela_Inicio(object):
             self.abrir_options.hide()
             self.frame_3.setGeometry(QtCore.QRect(241, 0, 1141, 41))
             self.pushButton_Início.setGeometry(QtCore.QRect(1030, 10, 91, 23))
-    def abrir_estoque(self):
-        print(self.new_item_aberto)
+
+    # O método abrir_estoque tem a função de abrir o arquivo 'estoque.py' e mudar para a parte de estoque do software.
+    def abrir_estoque(self) -> None:
         from estoque import Estoque
         if self.new_item_aberto == True:
             self.estoq.analise()
@@ -376,12 +420,16 @@ class Tela_Inicio(object):
         for widget in self.frame_demandas.findChildren(QtWidgets.QWidget):
             widget.deleteLater()
 
-    def showOptions(self, event):
+    # O método showOptions mostra as opções do menu, que incluem Criar Demandas para o Estoque ou Funcionários, e ver a tabela de demandas.
+    def showOptions(self, event=None) -> None:
         self.menu.popup(self.pushButton_demandas.mapToGlobal(self.pushButton_demandas.rect().bottomLeft()))
 
-    def hideOptions(self, event):
+    # O método hideOptions esconde as opções do menu, que incluem Criar Demandas para o Estoque ou Funcionários, e ver a tabela de demandas.
+    def hideOptions(self, event=None) -> None:
         self.menu.close()
-    def abrir_demandas(self,dema):
+
+    # O método abrir_demandas  tem a função de abrir o arquivo 'demandas.py' e mudar para a parte de demandas do software.
+    def abrir_demandas(self,dema=int) -> None:
         self.frame_2.setParent(self.frame_estoque)
         self.abrir_options.setParent(self.frame_estoque)
         self.frame_3.setParent(self.frame_estoque)
@@ -405,7 +453,10 @@ class Tela_Inicio(object):
         self.demanda.demandas(self.Form, dema, self)
         self.frame_demandas.show()
         self.new_item_aberto = False
-    def voltar_inicio(self):
+
+    # O método voltar_inicio tem a função de limpar a tela do software e mostrar a mesma tela que aparece quando o código é iniciado.
+    # Ou seja, a tela inicial.
+    def voltar_inicio(self) -> None:
         self.frame_2.setParent(self.frame)
         self.abrir_options.setParent(self.frame)
         self.frame_3.setParent(self.frame)
@@ -420,11 +471,42 @@ class Tela_Inicio(object):
         self.frame_estoque.hide()
         self.frame_demandas.hide()
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Form = QtWidgets.QWidget()
-    ui = Tela_Inicio()
-    ui.setupUi(Form)
-    Form.show()
-    sys.exit(app.exec())
+    # O método toggle_frame_visibility tem a função de fechar a janela_config do software.
+    # A janela_config só existe quando as configurções são abertas por isso se usa a condição config_Aberta.
+    def toggle_frame_visibility(self,frame=None) -> None:
+
+        if self.config_Aberta == True:
+            self.janela_config.close()
+            self.config_Aberta = False
+
+    # O método abrir_configuracoes abre a tela de configurações do software
+    def abrir_configuracoes(self,Form=None) -> None:
+
+        from config import Config
+
+        self.config = Config()
+        self.config.Tela_configuracao(Form, self)
+        self.config_Aberta = True
+
+    # O método abreviar_nome apenas pega o nome do usuário e abrevia e retorna o nome abreviado.
+    def abreviar_nome(self, nome = str) -> str:
+        item = nome
+        tamnaho = len(item)
+        login = ''
+        i = 0
+        space_atual = 0
+        quantidade_space = 0
+        for j in range(tamnaho):
+            if item[j] == ' ':
+                quantidade_space += 1
+        for i in range(tamnaho):
+            if item[i] != ' ' and space_atual == 0 or space_atual == quantidade_space:
+                login += item[i]
+            if space_atual != 0 and space_atual != quantidade_space and item[i] != ' ' and analise == 0:
+                login += item[i]
+                analise = 1
+            if item[i] == ' ':
+                login += ' '
+                space_atual += 1
+                analise = 0
+        return login
