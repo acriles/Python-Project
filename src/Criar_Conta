@@ -1,0 +1,282 @@
+import mysql.connector
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtGui import QIcon
+
+# A classe ClickableLabel é uma subclasse personalizada de QLabel que emite um sinal quando clicada.
+class ClickableLabel(QtWidgets.QLabel):
+    # Sinal personalizado emitido quando o label é clicado
+    clicked = QtCore.pyqtSignal()
+
+    # Método que captura o evento de clique do mouse
+    def mousePressEvent(self, event=None) -> None:
+        self.clicked.emit()
+
+# A classe Criar_Conta é a janela principal da aplicação.
+class Criar_Conta(object):
+
+    # O método criar_conta_principal tem a função de criar uma tela.
+    # É um método de interface gráfica. Este método cria frames, labels e botões, e conecta esses widgets às suas respectivas funções.
+    def criar_conta_principal(self, Form=None, tela=None) -> None:
+        self.tela = tela
+        self.form = Form
+        self.frame = QtWidgets.QFrame(parent=self.form)
+        self.frame.setGeometry(QtCore.QRect(30, 40, 511, 421))
+        self.frame.setStyleSheet("background-color: rgba(0, 0, 0,0.2);\n"
+"border: 2px solid while;\n"
+"                               border-radius: 10px;")
+        self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
+        self.frame.setObjectName("frame")
+        self.frame.show()
+        self.user = QtWidgets.QLineEdit(parent=self.frame)
+        self.user.setGeometry(QtCore.QRect(30, 20, 281, 31))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.user.setFont(font)
+        self.user.setStyleSheet("color: rgb(255, 255, 255);")
+        self.user.setText("")
+        self.user.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.user.setObjectName("user")
+        self.password = QtWidgets.QLineEdit(parent=self.frame)
+        self.password.setGeometry(QtCore.QRect(30, 150, 281, 31))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.password.setFont(font)
+        self.password.setStyleSheet("color: rgb(255, 255, 255);")
+        self.password.setFrame(True)
+        self.password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
+        self.password.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.password.setObjectName("password")
+        self.login_2 = QtWidgets.QPushButton(parent=self.frame)
+        self.login_2.setGeometry(QtCore.QRect(220, 330, 91, 21))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.login_2.setFont(font)
+        self.login_2.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.login_2.setStyleSheet("QPushButton{\n"
+"background-color: rgb(0, 0, 0);\n"
+"    color: rgb(255, 255, 255);\n"
+"    border-radius:10px;\n"
+"}\n"
+"QPushButton:hover{\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    color: rgb(0, 0, 0);\n"
+"}")
+        self.login_2.setObjectName("login_2")
+        self.login_2.clicked.connect(self.criar_conta)
+
+        self.password_2 = QtWidgets.QLineEdit(parent=self.frame)
+        self.password_2.setGeometry(QtCore.QRect(30, 210, 281, 31))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.password_2.setFont(font)
+        self.password_2.setStyleSheet("color: rgb(255, 255, 255);")
+        self.password_2.setText("")
+        self.password_2.setFrame(True)
+        self.password_2.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
+        self.password_2.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.password_2.setObjectName("password_2")
+
+        self.password_2.textChanged.connect(self.habilitar_botao_login)
+        self.password.textChanged.connect(self.habilitar_botao_login)
+
+        self.user_2 = QtWidgets.QLineEdit(parent=self.frame)
+        self.user_2.setGeometry(QtCore.QRect(30, 80, 281, 31))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.user_2.setFont(font)
+        self.user_2.setStyleSheet("color: rgb(255, 255, 255);")
+        self.user_2.setText("")
+        self.user_2.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.user_2.setObjectName("user_2")
+        self.user_2.textChanged.connect(self.check_space)
+        self.state = True
+        self.state_2 = True
+
+        icon = QtGui.QIcon(
+            'resources/assets/escondido.png')
+        pixmap = icon.pixmap(25, 25)
+        self.show_password_checkbox = ClickableLabel(parent=self.frame)
+        self.show_password_checkbox.setPixmap(pixmap)
+        self.show_password_checkbox.setGeometry(QtCore.QRect(330, 150, 50, 31))
+        self.show_password_checkbox.setStyleSheet('border:none;'
+                                                  'background-color: transparent;')
+        self.show_password_checkbox.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.show_password_checkbox.setCursor(QtCore.Qt.CursorShape.OpenHandCursor)
+        self.show_password_checkbox.clicked.connect(self.toggle_password_visibility)
+
+        self.show_password_checkbox_2 = ClickableLabel(parent=self.frame)
+        self.show_password_checkbox_2.setPixmap(pixmap)
+        self.show_password_checkbox_2.setGeometry(QtCore.QRect(330, 210, 50, 31))
+        self.show_password_checkbox_2.setStyleSheet('border:none;'
+                                                  'background-color: transparent;')
+        self.show_password_checkbox_2.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.show_password_checkbox_2.setCursor(QtCore.Qt.CursorShape.OpenHandCursor)
+        self.show_password_checkbox_2.clicked.connect(self.toggle_password_visibility_2)
+
+        self.Definir_Nomes(Form)
+        for widget in self.frame.findChildren(QtWidgets.QWidget):
+            widget.show()
+        self.warning_label = QtWidgets.QLabel(self.frame)
+        self.warning_label.setStyleSheet('color: red;'
+                                         'border:none;'
+                                         'background-color: transparent;')
+        self.habilitar_botao_login()
+        self.warning_label.setGeometry(QtCore.QRect(30, 115, 281, 31))
+        self.user.textChanged.connect(self.habilitar_botao_login)
+        self.user_2.textChanged.connect(self.habilitar_botao_login)
+
+        self.btn_voltar = QtWidgets.QPushButton('Voltar',parent=Form)
+        self.btn_voltar.setGeometry(QtCore.QRect(3, 10, 91, 21))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.btn_voltar.setFont(font)
+        self.btn_voltar.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.btn_voltar.setStyleSheet("QPushButton{\n"
+"background-color: rgb(0, 0, 0);\n"
+"    color: rgb(255, 255, 255);\n"
+"    border-radius:10px;\n"
+"}\n"
+"QPushButton:hover{\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    color: rgb(0, 0, 0);\n"
+"}")
+        self.btn_voltar.setObjectName("login_2")
+        self.btn_voltar.clicked.connect(self.voltar)
+        self.btn_voltar.show()
+
+    # O método voltar volta a tela de Criar Conta para a tela de Login
+    def voltar(self)-> None:
+        self.frame.hide()
+        self.tela.frame.show()
+        self.tela.label.show()
+        self.btn_voltar.hide()
+
+    # O método habilitar_botao_login permite que o botão login_2 seja clicado se todos os campos de dados estiverem preenchidos.
+    def habilitar_botao_login(self)-> None:
+        if len(self.user.text()) == 0 or len(self.user_2.text()) == 0 or len(self.password.text()) == 0 or len(self.password_2.text()) == 0:
+            self.login_2.setEnabled(False)
+        else:
+            self.login_2.setEnabled(True)
+
+    # O método toggle_password_visibility permite alternar a visibilidade da senha,
+    # permitindo que o usuário escolha entre exibir ou ocultar a senha enquanto digita.
+    def toggle_password_visibility(self) -> None:
+        if self.state == True:
+            self.password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Normal)
+            icon = QtGui.QIcon(
+                'resources/assets/olho.png')
+            pixmap = icon.pixmap(25, 25)
+            self.show_password_checkbox.setPixmap(pixmap)
+            self.state = False
+
+        else:
+            self.password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
+            icon = QtGui.QIcon(
+                'resources/assets/escondido.png')
+            pixmap = icon.pixmap(25, 25)
+            self.show_password_checkbox.setPixmap(pixmap)
+            self.state = True
+
+    # O método toggle_password_visibility_2 permite alternar a visibilidade da senha de confirmação,
+    # permitindo que o usuário escolha entre exibir ou ocultar a senha de confirmação enquanto digita.
+    def toggle_password_visibility_2(self)-> None:
+        if self.state_2 == True:
+            self.password_2.setEchoMode(QtWidgets.QLineEdit.EchoMode.Normal)
+            icon = QtGui.QIcon(
+                'resources/assets/olho.png')
+            pixmap = icon.pixmap(25, 25)
+            self.show_password_checkbox_2.setPixmap(pixmap)
+            self.state_2 = False
+
+        else:
+            self.password_2.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
+            icon = QtGui.QIcon(
+                'resources/assets/escondido.png')
+            pixmap = icon.pixmap(25, 25)
+            self.show_password_checkbox_2.setPixmap(pixmap)
+            self.state_2 = True
+
+    # O método check_space verifica se o texto tem algum espaço e habilita ou desabilita o botão de criar a conta de acordo
+    def check_space(self, text=str)-> None:
+        if ' ' in text:
+            self.warning_label.show()
+            self.warning_label.setText('O login não pode conter espaços.')
+            self.login_2.setEnabled(False)
+        else:
+            self.warning_label.hide()
+            self.warning_label.clear()
+            self.login_2.setEnabled(True)
+
+    # Esse método Definir_Nomes tem a função gráfica de definir os nomes de alguns labels e botões fixos.
+    # Ou seja, que não mudam os nomes.
+    def Definir_Nomes(self, Form=None) -> None:
+        _translate = QtCore.QCoreApplication.translate
+        self.user.setPlaceholderText(_translate("Form", "Nome Completo"))
+        self.password.setPlaceholderText(_translate("Form", "Senha"))
+        self.login_2.setText(_translate("Form", "Criar Conta"))
+        self.password_2.setPlaceholderText(_translate("Form", "Repita a Senha"))
+
+        self.user_2.setPlaceholderText(_translate("Form", "Usuário"))
+
+    # O método criar_conta faz conexão com o database e verifica se a conta existe. Se não existe a conta é criada.
+    def criar_conta(self)-> None:
+        conexao = mysql.connector.connect(
+            host="monorail.proxy.rlwy.net",
+            port=30980,
+            user="root",
+            password="RXlnFIuFEKMvnYsMaPWvDimjLdGyoJVv",
+            database="railway"
+        )
+        cursor = conexao.cursor()
+        comando = 'SELECT * FROM Conta'
+        cursor.execute(comando)
+        leitura = cursor.fetchall()
+
+        analise = True
+        for linha in leitura:
+            if len(linha)>0:
+                if linha[0] == self.user_2.text():
+                    msg_box = QMessageBox()
+                    msg_box.setIcon(QMessageBox.Icon.Information)
+                    msg_box.setWindowTitle("AVISO")
+                    msg_box.setText("Usuário já existe!")
+                    icon = QIcon('resources/assets/warning.ico')
+                    msg_box.setWindowIcon(icon)
+                    msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+                    reply = msg_box.exec()
+                    analise = False
+                    self.user.clear()
+                    self.user_2.clear()
+                    self.password.clear()
+                    self.password_2.clear()
+        cursor.close()
+        conexao.close()
+        if analise == True:
+            conexao = mysql.connector.connect(
+                host="monorail.proxy.rlwy.net",
+                port=30980,
+                user="root",
+                password="RXlnFIuFEKMvnYsMaPWvDimjLdGyoJVv",
+                database="railway"
+            )
+            cursor = conexao.cursor()
+
+            usuario = self.user_2.text()
+            name = self.user.text()
+            senha = self.password.text()
+            comando = f'INSERT INTO Conta (usuario,Nome, senha) VALUES ("{usuario}","{name}", "{senha}")'
+            cursor.execute(comando)
+            conexao.commit()
+            cursor.close()
+            conexao.close()
+
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Icon.Information)
+            msg_box.setWindowTitle("AVISO")
+            msg_box.setText("Conta Cadastrada com Sucesso!")
+            icon = QIcon('warning.ico')
+            msg_box.setWindowIcon(icon)
+            msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+            reply = msg_box.exec()
