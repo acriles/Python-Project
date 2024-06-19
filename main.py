@@ -1,12 +1,12 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QWidget
-from src.tela_inicial import Tela_Inicio
+from src.Login import Login
 
 def main():
     app = QApplication(sys.argv)
     form = QWidget()
-    ui = Tela_Inicio()
-    ui.setupUi(form)
+    ui = Login()
+    ui.login(Form)
     form.show()
     sys.exit(app.exec())
 
