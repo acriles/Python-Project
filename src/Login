@@ -1,8 +1,6 @@
 from PyQt6.QtGui import QIcon,QPixmap
 from PyQt6 import QtCore, QtGui, QtWidgets
 import mysql.connector
-from PyQt6.QtWidgets import QMessageBox, QVBoxLayout, QWidget
-from PyQt6.QtCore import Qt, QTimer
 
 # A classe ClickableLabel é uma subclasse personalizada de QLabel que emite um sinal quando clicada.
 class ClickableLabel(QtWidgets.QLabel):
@@ -10,7 +8,12 @@ class ClickableLabel(QtWidgets.QLabel):
     clicked = QtCore.pyqtSignal()
 
     # Método que captura o evento de clique do mouse
-    def mousePressEvent(self, event):
+    def mousePressEvent(self, event:None)->None:
+        '''
+
+        :param event: A função é chamdad quando o certo evento acontece
+        :return: Nao retorna nada
+        '''
         self.clicked.emit()
 # A classe Login é a janela principal da aplicação.
 
@@ -19,7 +22,12 @@ class Login(object):
     # O método login tem a função de criar uma tela.
     # É um método de interface gráfica. Este método cria frames, labels e botões, e conecta esses widgets às suas respectivas funções.
 
-    def login(self, Form):
+    def login(self, Form:None) -> None:
+        '''
+
+        :param Form:  Tela
+        :return: Não retorna nada
+        '''
         Form.setObjectName("Form")
         Form.setFixedSize(612, 567)
 
@@ -158,6 +166,10 @@ class Login(object):
     # O método toggle_password_visibility permite alternar a visibilidade da senha,
     # permitindo que o usuário escolha entre exibir ou ocultar a senha enquanto digita.
     def toggle_password_visibility(self) -> None:
+        '''
+
+        :return: Não retorna nada
+        '''
         if self.state == True:
             self.password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Normal)
             icon = QtGui.QIcon(
@@ -176,11 +188,20 @@ class Login(object):
 
     # O método ocultar_user_label oculta as labels que indicam se o usuário ou a senha estão corretos.
     def ocultar_user_label(self) -> None:
+        '''
+
+        :return: Não retorna nada
+        '''
         self.user_label.hide()
         self.senha_label.hide()
 
     # O método logar conecta-se ao banco de dados para verificar se as credenciais (usuário e senha) existem.
-    def logar(self,Form=None) ->  None:
+    def logar(self,Form:None) ->  None:
+        '''
+
+        :param Form: Tela
+        :return: Não retorna nada
+        '''
         conexao = mysql.connector.connect(
             host="monorail.proxy.rlwy.net",
             port=30980,
@@ -221,15 +242,25 @@ class Login(object):
         cursor.close()
         conexao.close()
     # Método tela_espera inicia a tela incial da aplicação.
-    def tela_espera(self,Form=None) ->None:
-        self.tela_inicial.setup(self.janela_inicial, self.linha1,self.linha2)
+    def tela_espera(self,Form:None) ->None:
+        '''
+
+        :param Form: Tela
+        :return: Não retorna nada
+        '''
+        self.tela_inicial.Tela(self.janela_inicial, self.linha1,self.linha2)
         self.janela_inicial.show()
 
         Form.close()
 
     # Esse método Definir_Nomes tem a função gráfica de definir os nomes de alguns labels e botões fixos.
     # Ou seja, que não mudam os nomes.
-    def Definir_Nomes(self, Form=None) ->None:
+    def Definir_Nomes(self, Form:None) ->None:
+        '''
+
+        :param Form: Tela
+        :return: Não retorna nada
+        '''
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Estoquinho"))
         self.user.setPlaceholderText(_translate("Form", "Usuário"))
@@ -239,12 +270,18 @@ class Login(object):
 
     # O método criar_conta tem a função de abrir o arquivo 'Criar_Conta.py' e mudar para a parte de criar a conta no software.
 
-    def criar_conta(self,Form):
+    def criar_conta(self,Form:None)-> None:
+        '''
+
+        :param Form: Tela
+        :return: Não retorna nada
+        '''
         self.frame.hide()
         self.label.hide()
         from  Criar_Conta import Criar_Conta
         self.criar_cont = Criar_Conta()
         self.criar_cont.criar_conta_principal(Form,self)
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
