@@ -1,14 +1,26 @@
 # Part of Stoquee. See LICENSE file for full copyright and licensing details.
+from Interface import Interface
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QMenu
 from PyQt6.QtGui import QAction,QIcon
+from PyQt6.QtCore import QSettings, QStandardPaths
 
 # A classe Tela_Inicio representa a Tela inicial do software e todas as suas conexões o seguimento do estoque.
-class Tela_Inicio(object):
+class Tela_Inicio(Interface):
 
-    # O método setup tem a função de criar a tela principal.
+    # O método Tela tem a função de criar a tela principal.
     # É um método de interface gráfica. Este método cria frames, labels e botões, e conecta esses widgets às suas respectivas funções.
-    def setup(self, Form = None, user = str,nome_user = str) -> None:
+    def Tela(self, Form : None, user : str,nome_user : str) -> None:
+        '''
+        :param Form: Tela que foi aberta no Login
+        :param user: Atributo definido pelo usuário ao entrar no Login
+        :param nome_user: Atributo definido pelo usuário ao entrar no Login
+        :return: Não retorna nada
+        '''
+        self.settings = QSettings("Estoque", "Lui")
+        script_directory = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppDataLocation)
+        config_file_path = f"{script_directory}/config.ini"
+        self.settings = QSettings(config_file_path, QSettings.Format.IniFormat)
         self.config_Aberta = False
 
         icon = QIcon('resources/assets/bender.jfif')
@@ -215,35 +227,6 @@ class Tela_Inicio(object):
         self.pushButton_fechar_frame_options.setObjectName("pushButton_fechar_frame_options")
         self.pushButton_fechar_frame_options.clicked.connect( self.fechar_options)
 
-        self.pushButton_funcionario = QtWidgets.QPushButton(parent=self.frame_2)
-        self.pushButton_funcionario.setGeometry(QtCore.QRect(20, 390, 201, 35))
-        font = QtGui.QFont()
-        font.setPointSize(16)
-        font.setBold(True)
-        font.setWeight(75)
-        self.pushButton_funcionario.setFont(font)
-        self.pushButton_funcionario.setStyleSheet("QPushButton {\n"
-"                    border: none ;\n"
-"                    border-radius: 10px;\n"
-"                    background-color: (131, 131, 131);\n"
-"                    color: white;\n"
-"                }\n"
-"\n"
-"                QPushButton:hover {\n"
-"                    background-color: #DDDDDD;  /* Change this to your desired hover color */\n"
-"                    color: rgb(0, 0, 0);\n"
-"                }\n"
-"\n"
-"                QPushButton:pressed {\n"
-"                    background-color: white;  /* Change this to your desired pressed color */\n"
-"                    color: black;\n"
-"                }")
-        icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("resources/assets/a_grupo.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.pushButton_funcionario.setIcon(icon3)
-        self.pushButton_funcionario.setIconSize(QtCore.QSize(35, 35))
-        self.pushButton_funcionario.setObjectName("pushButton_funcionario")
-
         self.label_3 = QtWidgets.QLabel(parent=self.frame_2)
         self.label_3.setGeometry(QtCore.QRect(70, 30, 101, 101))
         self.label_3.setText("")
@@ -251,7 +234,7 @@ class Tela_Inicio(object):
         self.label_3.setObjectName("label_3")
         name = self.abreviar_nome(nome_user)
         self.label_4 = QtWidgets.QLabel(name,parent=self.frame_2)
-        self.label_4.setGeometry(QtCore.QRect(40, 150, 110, 20))
+        self.label_4.setGeometry(QtCore.QRect(40, 150, 130, 20))
 
         font = QtGui.QFont()
         font.setPointSize(14)
@@ -343,12 +326,12 @@ class Tela_Inicio(object):
 "                }\n"
 "\n"
 "                QPushButton:hover {\n"
-"                    background-color: #DDDDDD;  /* Change this to your desired hover color */\n"
+"                    background-color: #DDDDDD; \n"
 "                    color: rgb(0, 0, 0);\n"
 "                }\n"
 "\n"
 "                QPushButton:pressed {\n"
-"                    background-color: white;  /* Change this to your desired pressed color */\n"
+"                    background-color: white; \n"
 "                    color: black;\n"
 "                }")
         icon5 = QtGui.QIcon()
@@ -377,17 +360,60 @@ class Tela_Inicio(object):
                 continue
             else:
                 widget.show()
+        self.menu.hide()
+    # Esse método conf_layout tem a função gráfica de mudar o Layout dos frames.
+    def conf_layout(self)-> None:
+        '''
+
+        :return Não retorna nada:
+        '''
+        if self.settings.contains("tema"):
+            font_name = self.settings.value("font", defaultValue="")
+            backcolocor = self.settings.value("tema", defaultValue="")
+            color = self.settings.value("color", defaultValue="")
+            tamanho = int(self.settings.value("tamanho", defaultValue=10))
+        else:
+            backcolocor = 'White'
+            color =  'Black'
+            tamanho = 12
+            font_name = 'Segoe UI'
+        self.backcolocor = backcolocor
+        self.color = color
+        self.font = font_name
+        self.tamanho = tamanho
+        for label in self.frame.findChildren(QtWidgets.QLabel):
+            label.setStyleSheet(f'color: {color}; font:  {tamanho}px {font_name}; border:none')
+        self.frame.setStyleSheet(f'background-color: {backcolocor};'
+                                 f'color: {color};'
+                                 f'font: {font_name} {tamanho}px;')
+        self.frame_estoque.setStyleSheet(f'background-color: {backcolocor};'
+                                 f'color: {color};'
+                                 f'font: {font_name} {tamanho}px;')
+        self.frame_demandas.setStyleSheet(f'background-color: {backcolocor};'
+                                       f'color: {color};'
+                                       f'font: {font_name} {tamanho}px;')
+        self.frame_new_item.setStyleSheet(f'background-color: {backcolocor};'
+                                          f'color: {color};'
+                                          f'font: {font_name} {tamanho}px;')
+
+        for label in self.frame.findChildren(QtWidgets.QLabel):
+            label.setStyleSheet(f'color: {color}; font:  {tamanho}px {font_name}; border:none')
 
     # Esse método Definir_Nomes tem a função gráfica de definir os nomes de alguns labels e botões fixos.
     # Ou seja, que não mudam os nomes.
     def Definir_Nomes(self, Form=None) -> None:
+
+        '''
+
+        :param Form: Tela
+        :return: Não retorna nada
+        '''
 
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
         self.pushButton_estoque.setText(_translate("Form", "Estoque             "))
         self.pushButton_demandas.setText(_translate("Form", "Demandas       "))
         self.pushButton_config.setText(_translate("Form", "Configurações   "))
-        self.pushButton_funcionario.setText(_translate("Form", "Funcionarios    "))
         self.label.setText(_translate("Form", "Controle de Estoque"))
         self.pushButton_Início.setText(_translate("Form", "Início"))
 
@@ -407,6 +433,10 @@ class Tela_Inicio(object):
 
     # O método abrir_estoque tem a função de abrir o arquivo 'estoque.py' e mudar para a parte de estoque do software.
     def abrir_estoque(self) -> None:
+        '''
+
+        :return Não retorna Nada:
+        '''
         from estoque import Estoque
         if self.new_item_aberto == True:
             self.estoq.analise()
@@ -416,20 +446,34 @@ class Tela_Inicio(object):
             self.abrir_options.setParent(self.frame_estoque)
             self.frame_3.setParent(self.frame_estoque)
             self.estoq = Estoque()
-            self.estoq.abrir_estoque(self.Form, self)
+            self.estoq.Tela(self.Form, self)
         for widget in self.frame_demandas.findChildren(QtWidgets.QWidget):
             widget.deleteLater()
 
     # O método showOptions mostra as opções do menu, que incluem Criar Demandas para o Estoque ou Funcionários, e ver a tabela de demandas.
     def showOptions(self, event=None) -> None:
+
+        '''
+        :param event: Evento que é requisitado para iniciar o método
+        :return: Não retorna nada
+        '''
         self.menu.popup(self.pushButton_demandas.mapToGlobal(self.pushButton_demandas.rect().bottomLeft()))
 
     # O método hideOptions esconde as opções do menu, que incluem Criar Demandas para o Estoque ou Funcionários, e ver a tabela de demandas.
     def hideOptions(self, event=None) -> None:
+
+        '''
+        :param event: Evento que é requisitado para iniciar o método
+        :return: Não retorna nada
+        '''
         self.menu.close()
 
     # O método abrir_demandas  tem a função de abrir o arquivo 'demandas.py' e mudar para a parte de demandas do software.
     def abrir_demandas(self,dema=int) -> None:
+        '''
+        :param dema: Atributo escolhido pelo usuário entre 1, 2 e 3
+        :return: Não retorna nada
+        '''
         self.frame_2.setParent(self.frame_estoque)
         self.abrir_options.setParent(self.frame_estoque)
         self.frame_3.setParent(self.frame_estoque)
@@ -450,13 +494,17 @@ class Tela_Inicio(object):
         self.frame_2.show()
 
         self.demanda = Demandas()
-        self.demanda.demandas(self.Form, dema, self)
+        self.demanda.Tela(self.Form, dema, self)
         self.frame_demandas.show()
         self.new_item_aberto = False
 
     # O método voltar_inicio tem a função de limpar a tela do software e mostrar a mesma tela que aparece quando o código é iniciado.
     # Ou seja, a tela inicial.
     def voltar_inicio(self) -> None:
+        '''
+
+        :return Não retorna Nada:
+        '''
         self.frame_2.setParent(self.frame)
         self.abrir_options.setParent(self.frame)
         self.frame_3.setParent(self.frame)
@@ -474,13 +522,21 @@ class Tela_Inicio(object):
     # O método toggle_frame_visibility tem a função de fechar a janela_config do software.
     # A janela_config só existe quando as configurções são abertas por isso se usa a condição config_Aberta.
     def toggle_frame_visibility(self,frame=None) -> None:
+        '''
 
+        :param frame: Tela
+        :return: Não retorna nada
+        '''
         if self.config_Aberta == True:
             self.janela_config.close()
             self.config_Aberta = False
 
     # O método abrir_configuracoes abre a tela de configurações do software
     def abrir_configuracoes(self,Form=None) -> None:
+        '''
+        :param Form: Tela
+        :return: Não retorna nada
+        '''
 
         from config import Config
 
@@ -490,6 +546,11 @@ class Tela_Inicio(object):
 
     # O método abreviar_nome apenas pega o nome do usuário e abrevia e retorna o nome abreviado.
     def abreviar_nome(self, nome = str) -> str:
+        '''
+
+        :param nome: Atributo definido pelo usuário
+        :return: Retorna uma string
+        '''
         item = nome
         tamnaho = len(item)
         login = ''
