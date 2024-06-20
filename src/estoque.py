@@ -4,13 +4,21 @@ from PyQt6.QtWidgets import QMessageBox
 from PyQt6.QtCore import QDate
 from PyQt6.QtGui import QIcon
 import mysql.connector
-# A classe Estoque é a janela principal da aplicação.
-class Estoque(object):
+from Interface import Interface
 
-    # O método abrir_estoque tem a função de criar uma tela.
+# A classe Estoque é a janela principal da aplicação.
+class Estoque(Interface):
+
+    # O método Tela tem a função de criar uma tela.
     # É um método de interface gráfica. Este método cria frames, labels e botões, e conecta esses widgets às suas respectivas funções.
 
-    def abrir_estoque(self,Form=None,tela=None) -> None:
+    def Tela(self,Form:None,tela:None) -> None:
+        '''
+
+        :param Form: Tela
+        :param tela: Atributo recebido do arquivo tela_inicial, ele representa todos os
+        :return: Não retorna nada
+        '''
         self.tela = tela
         self.frame = self.tela.frame_estoque
         self.frame_new =  self.tela.frame_new_item
@@ -181,7 +189,12 @@ class Estoque(object):
         self.analise_edit_tabela = 'Nenhum'
         self.tabela_estoque.doubleClicked.connect(lambda: self.altera_table('Tabela'))
 
+    # O método analise analisa se um dos frames esta aberto. Ou o de criar um item pro estoque ou da tabela de estoques
     def analise(self) -> None:
+        '''
+
+        :return: Não retorna nada
+        '''
         if self.tela.new_item_aberto == True:
             self.nome_item.hide()
             self.nome_item_label.hide()
@@ -201,11 +214,21 @@ class Estoque(object):
 
     # Método increase_column_width define o tamanho das colunas de acordo com a quantidade de caracteres da coluna.
     # Assim a coluna fica com o tamanho correto.
-    def increase_column_width(self, column=int, width=int):
+    def increase_column_width(self, column:int, width:int):
+        '''
+
+        :param column: Coluna da tabela
+        :param width: Tamanho que a coluna ficará
+        :return: Não retorna nada
+        '''
         self.tabela_estoque.setColumnWidth(column, width)
 
     # O método criar_item é um método gráfico que abre a parte de criar um item novo no estoque.
     def criar_item(self) -> None:
+        '''
+
+        :return: Não retorna nada
+        '''
 
         if self.tela.new_item_aberto == False:
             self.tela.label.setText("Cadastrar Item")
@@ -268,7 +291,12 @@ class Estoque(object):
             self.tabela_estoque.hide()
 
     # Método altera_table usado alterar a tabela e salvar as alterações.
-    def altera_table(self,nivel=str)-> None:
+    def altera_table(self,nivel:str)-> None:
+        '''
+
+        :param nivel: nivel é um str que india se a tabela está em estado de alteração ou não
+        :return: Não retorna nada
+        '''
         if self.analise_edit_tabela != nivel :
             colum_item = 0
             colum_preco_unitario = 0
@@ -366,6 +394,10 @@ class Estoque(object):
 
     # Método generar_numero usado para gerar um número aleatório.
     def generar_numero(self)-> None:
+        '''
+
+        :return: Não retorna nada
+        '''
         data = QDate.currentDate()
         dia = data.day()
         mes = data.month()
@@ -377,6 +409,10 @@ class Estoque(object):
     # O método atualiza_estoque faz conexão e lê o database e atualiza a tabela de estoque.
 
     def atualiza_estoque(self)-> None:
+        '''
+
+        :return: Não retorna nada
+        '''
         host = "monorail.proxy.rlwy.net"
         port = 30980
         user = "root"
@@ -435,6 +471,10 @@ class Estoque(object):
 
     # Método add_estoque usado para adicionar novos itens ao dabase de estoque.
     def add_estoque(self)-> None:
+        '''
+
+        :return: Não retorna nada
+        '''
         host = "monorail.proxy.rlwy.net"
         port = 30980
         user = "root"
@@ -487,6 +527,10 @@ class Estoque(object):
 
     # Método copiadora copia a tabela de estoque.
     def copiadora(self)-> None:
+        '''
+
+        :return: Não retorna nada
+        '''
         conta_linha = self.tabela_estoque.rowCount()
         conta_coluna = self.tabela_estoque.columnCount()
         self.tabela_alt.setColumnCount(conta_coluna)
@@ -501,6 +545,10 @@ class Estoque(object):
 
     # Método copiadora2 copia a tabela do estoque para uma segunda tabela.
     def copiadora2(self)-> None:
+        '''
+
+        :return: Não retorna nada
+        '''
         conta_linha = self.tabela_estoque.rowCount()
         conta_coluna = self.tabela_estoque.columnCount()
         self.tabela_alt2.setColumnCount(conta_coluna)
@@ -515,6 +563,10 @@ class Estoque(object):
 
     # Método moficacao verifica se ouve alguma modificação na tabela. E pega qual o item alterado.
     def modificao(self)-> None:
+        '''
+
+        :return: Não retorna nada
+        '''
         self.copiadora2()
 
         conta_linha = self.tabela_alt2.rowCount()
@@ -528,8 +580,19 @@ class Estoque(object):
                         self.lista_modificacoes.append(analisa_linha)
 
     # Método alt_banco altera o database no respectivo item alterado na tabela.
-    def alt_banco(self,item=str,descricao=str,unidade=str,quantidade=int,marca=str,precounico=int,ultima_aqui=str,id=int)-> None:
+    def alt_banco(self,item:str,descricao:str,unidade:str,quantidade:int,marca:str,precounico:int,ultima_aqui:str,id:int)-> None:
+        '''
 
+        :param item: str que representa o nome do item
+        :param descricao: str que representa a descrição do item
+        :param unidade: str que representa a unidade do item
+        :param quantidade: int que rerpresenta a quantidade de itens
+        :param marca: str que representa a marca do item
+        :param precounico: str que representa o preço unitário do item
+        :param ultima_aqui: str que representa a data da ultima aquisição do item
+        :param id: int que representa o id no banco de dados
+        :return: Não retorna nada
+        '''
         try:
             conexao = mysql.connector.connect(
                 host="monorail.proxy.rlwy.net",
