@@ -1,0 +1,6 @@
+from abc import ABC, abstractmethod
+#Interface Abstrada
+class Interface(ABC):
+    @abstractmethod
+    def Tela(self):
+        pass
