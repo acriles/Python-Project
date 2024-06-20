@@ -10,6 +10,8 @@ import mysql.connector
 from PyQt6.QtGui import QIcon
 import mysql.connector
 import os
+from Interface import Interface
+
 
 
 # A classe ClickableLabel é uma subclasse personalizada de QLabel que emite um sinal quando clicada.
@@ -20,15 +22,26 @@ class ClickableLabel(QtWidgets.QLabel):
     # Método que captura o evento de clique do mouse
 
     def mousePressEvent(self, event):
+        '''
+        
+        :param event: A função é chamdad quando o certo evento acontece
+        :return: Nao retorna nada 
+        '''
         self.clicked.emit()
 
 # A classe Demandas é a janela principal da aplicação.
-class Demandas(object):
+class Demandas(Interface):
 
-    # O método demandas tem a função de criar uma tela.
+    # O método Tela tem a função de criar uma tela.
     # É um método de interface gráfica. Este método cria frames, labels e botões, e conecta esses widgets às suas respectivas funções.
 
-    def demandas(self, Form=None,dema=int,tela=None) -> None:
+    def Tela(self, Form=None,dema=int,tela=None) -> None:
+        '''
+        :param Form: Tela
+        :param dema: Atributo escolhido pelo usuário entre 1, 2 e 3
+        :param tela: Atributo recebido do arquivo tela_inicial, ele representa todos os
+        :return: Não retorna nada
+        '''
         self.tela = tela
         self.frame = self.tela.frame_demandas
 
@@ -350,51 +363,63 @@ class Demandas(object):
 
     # Método procurar_nome_data usado para fazer pesquisa no database.
     # A pesquisa tem objetico de achar os itens cadastrados no estoque.
-    def procurar_nome_data(self,pesquisa=str) -> None:
+    # Esse método abre o data base e procura se o Item do estoque existe no banco de dados e coloca em uma lista
+    def procurar_nome_data(self,pesquisa:str) -> None:
+        '''
+        
+        :param pesquisa: Atribuido pelo usuário quando fez a pesquisa no line edit. Es
+        :return: Não retorna nada 
+        '''
+        if pesquisa != '':
+            try:
+                if len(self.lista_nome) == 0:
+                    conexao = mysql.connector.connect(
+                        host="monorail.proxy.rlwy.net",
+                        port=30980,
+                        user="root",
+                        password="RXlnFIuFEKMvnYsMaPWvDimjLdGyoJVv",
+                        database="railway"
+                    )
+                    cursor = conexao.cursor()
+                    comando = f'SELECT * FROM estoque'
+                    cursor.execute(comando)
+                    leitura = cursor.fetchall()
+                    self.analise_leitura = leitura
+                    self.lista_nome = [str(valor[1]) for valor in leitura if valor[1] is not None]
 
-         if pesquisa != '':
-             try:
-                 if len(self.lista_nome) == 0:
+                    conexao.commit()
+                    cursor.close()
+                    conexao.close()
 
-                     conexao = mysql.connector.connect(
-                         host="monorail.proxy.rlwy.net",
-                         port=30980,
-                         user="root",
-                         password="RXlnFIuFEKMvnYsMaPWvDimjLdGyoJVv",
-                         database="railway"
-                     )
-                     cursor = conexao.cursor()
-                     comando = f'SELECT * FROM estoque'
-                     cursor.execute(comando)
-                     leitura = cursor.fetchall()
-                     self.analise_leitura = leitura
-                     self.lista_nome = [str(valor[1]) for valor in leitura if valor[1] is not None]
+                completer = QCompleter(self.lista_nome, self.frame)
+                completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+                self.nome_item.setCompleter(completer)
+                if self.lista_nome:
+                    if pesquisa in self.lista_nome:
+                        posicao = self.lista_nome.index(pesquisa)
+                        nome = str(self.analise_leitura[posicao][1]) if self.analise_leitura[posicao][
+                                                                            1] is not None else "N/A"
+                        marca = str(self.analise_leitura[posicao][6]) if self.analise_leitura[posicao][
+                                                                             6] is not None else "N/A"
+                        unidade = str(self.analise_leitura[posicao][3]) if self.analise_leitura[posicao][
+                                                                               3] is not None else "N/A"
 
-                     conexao.commit()
-                     cursor.close()
-                     conexao.close()
-
-                 completer = QCompleter(self.lista_nome, self.frame)
-                 completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
-                 self.nome_item.setCompleter(completer)
-                 if self.lista_nome:
-                     if pesquisa in self.lista_nome:
-                         posicao = self.lista_nome.index(pesquisa)
-                         nome = str(self.analise_leitura[posicao][1]) if self.analise_leitura[posicao][1] is not None else "N/A"
-                         marca = str(self.analise_leitura[posicao][6]) if self.analise_leitura[posicao][6] is not None else "N/A"
-                         unidade = str(self.analise_leitura[posicao][3]) if self.analise_leitura[posicao][3] is not None else "N/A"
-
-                         self.nome_item.setText(nome)
-                         self.marca_item.setText(marca)
-                         self.Combounidade.setItemText(0, f"{unidade}")
+                        self.nome_item.setText(nome)
+                        self.marca_item.setText(marca)
+                        self.Combounidade.setItemText(0, f"{unidade}")
 
 
 
-             except mysql.connector.Error as e:
-                 print("Erro ao conectar ao MySQL:", e)
+            except mysql.connector.Error as e:
+                print("Erro ao conectar ao MySQL:", e)
 
     # Método add_demandas usado para adicionar novas demandas ao dabase.
-    def add_demandas(self,dema=int) -> None:
+    def add_demandas(self,dema:int) -> None:
+        '''
+         
+        :param dema: inteiro definido pelo usuário quando o mesmo escolhe entre demandas, criar demanda de funcionário ou de estoque 
+        :return: Não retorna nada
+        '''
         import mysql.connector
         host = "monorail.proxy.rlwy.net"
         port = 30980
@@ -402,52 +427,87 @@ class Demandas(object):
         password = "RXlnFIuFEKMvnYsMaPWvDimjLdGyoJVv"
         database = "railway"
 
-        try:
-            connection = mysql.connector.connect(
-                host="monorail.proxy.rlwy.net",
-                port=30980,
-                user="root",
-                password="RXlnFIuFEKMvnYsMaPWvDimjLdGyoJVv",
-                database="railway"
-            )
+        if len(self.marca_item.text()) == 0:
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Icon.Information)
+            msg_box.setWindowTitle("AVISO")
+            msg_box.setText(f"A marca deve ser informada.")
+            msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+            reply = msg_box.exec()
 
-            if connection.is_connected():
-                print("Conexão ao MySQL bem-sucedida.")
-
-                unidade = self.Combounidade.currentText()
-                value = self.Quantidade_item.value()
-                value_str = str(value)
-                cursor = connection.cursor()
-                data_hoje = QDate.currentDate()
-                self.id = 0
-                self.generar_numero(dema)
-                data_formatada = data_hoje.toString('dd/MM/yyyy')
-                query = "INSERT INTO demanda (id,item, descricao,unidade,quantidade, marca,precounico,precototal,status,data) VALUES (%s,%s, %s, %s,%s,%s, %s, %s,%s,%s)"
-                values = (f"{self.id}",f"{self.nome_item.text()}", f"{self.descricao.toPlainText()}",f"{unidade}",f"{value_str}", f"{self.marca_item.text()}","",'','Aguardando',f'{data_formatada}')
-                cursor.execute(query, values)
-
-                msg_box = QMessageBox()
-                msg_box.setIcon(QMessageBox.Icon.Information)
-                msg_box.setWindowTitle("AVISO")
-                msg_box.setText("Demanda Cadastrada!")
-                msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
-                reply = msg_box.exec()
-
-                connection.commit()
+        elif dema == 3 and not self.nome_item.text() in self.lista_nome:
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Icon.Information)
+            msg_box.setWindowTitle("AVISO")
+            msg_box.setText(f"O item {self.nome_item.text()} não existe no Estoque.\nCadastre primeiro.")
+            msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+            reply = msg_box.exec()
 
 
-        except mysql.connector.Error as e:
-            print("Erro ao conectar ao MySQL:", e)
+        elif dema == 2 and len(self.descricao.toPlainText()) == 0:
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Icon.Information)
+            msg_box.setWindowTitle("AVISO")
+            msg_box.setText(f"A descrição deve ser preenchida.")
+            msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+            reply = msg_box.exec()
+        else:
+            try:
+                connection = mysql.connector.connect(
+                    host="monorail.proxy.rlwy.net",
+                    port=30980,
+                    user="root",
+                    password="RXlnFIuFEKMvnYsMaPWvDimjLdGyoJVv",
+                    database="railway"
+                )
 
-        finally:
-            if 'connection' in locals() and connection.is_connected():
-                cursor.close()
-                connection.close()
-                print("Conexão ao MySQL encerrada.")
+                if connection.is_connected():
+                    print("Conexão ao MySQL bem-sucedida.")
+
+                    unidade = self.Combounidade.currentText()
+                    value = self.Quantidade_item.value()
+                    value_str = str(value)
+                    cursor = connection.cursor()
+                    data_hoje = QDate.currentDate()
+                    self.id = 0
+                    self.generar_numero(dema)
+                    if dema == 3:
+                        descricao = ''
+                    if dema == 2:
+                        descricao = self.descricao.toPlainText()
+                    data_formatada = data_hoje.toString('dd/MM/yyyy')
+                    query = "INSERT INTO demanda (id,item, descricao,unidade,quantidade, marca,precounico,precototal,status,data) VALUES (%s,%s, %s, %s,%s,%s, %s, %s,%s,%s)"
+                    values = (f"{self.id}", f"{self.nome_item.text()}", f"{descricao}", f"{unidade}",
+                              f"{value_str}", f"{self.marca_item.text()}", "", '', 'Aguardando', f'{data_formatada}')
+                    cursor.execute(query, values)
+
+                    msg_box = QMessageBox()
+                    msg_box.setIcon(QMessageBox.Icon.Information)
+                    msg_box.setWindowTitle("AVISO")
+                    msg_box.setText("Demanda Cadastrada!")
+                    msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+                    reply = msg_box.exec()
+
+                    connection.commit()
+
+
+            except mysql.connector.Error as e:
+                print("Erro ao conectar ao MySQL:", e)
+
+            finally:
+                if 'connection' in locals() and connection.is_connected():
+                    cursor.close()
+                    connection.close()
+                    print("Conexão ao MySQL encerrada.")
 
     # Método generar_numero usado para gerar um número aleatório.
     # O numero deve ser par para demandas dos funcionarios e ímpar para demandas do Estoque.
-    def generar_numero(self,type=int) -> None:
+    def generar_numero(self,type:int) -> None:
+        '''
+        
+        :param type: inteiro para saber se é um número par ou impar que deve ser gerado
+        :return:NÃO RETORNA NADA 
+        '''
         data = QDate.currentDate()
         dia = data.day()
         mes = data.month()
@@ -524,6 +584,10 @@ class Demandas(object):
     # O método atualizar_tabela atualiza a tabela_demandas de acordo com qual tipo de demanda o usuário deseja.
     # Demanda de estoque ou dos funcionários
     def atualizar_tabela(self)-> None:
+        '''
+        
+        :return: Não retorna nada
+        '''
         if self.radioButton_Demandas.isChecked() or self.radioButton_Estoque.isChecked():
             analise = []
             if self.radioButton_Demandas.isChecked():
@@ -558,18 +622,35 @@ class Demandas(object):
                         item_copy.setTextAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
                         self.tabela_demandas.setVerticalHeaderItem(row, item_copy)
-                button_widget = QtWidgets.QPushButton("Comprar Item")
-                button_widget.clicked.connect(lambda state, row=row: self.comprar(row))
-                self.tabela_demandas.setCellWidget(row, 9, button_widget)
+                if self.tabela_demandas.item(row,7).text() == 'Aguardando':
+                    button_widget = QtWidgets.QPushButton("Comprar Item")
+                    button_widget.clicked.connect(lambda state, row=row: self.comprar(row))
+                    self.tabela_demandas.setCellWidget(row, 9, button_widget)
+                if self.tabela_demandas.item(row,7).text() == 'Compra Realizada':
+                    button_widget = QtWidgets.QPushButton("Confirmar Item")
+                    button_widget.clicked.connect(lambda state, row=row: self.confirmar_item(row))
+                    self.tabela_demandas.setCellWidget(row, 9, button_widget)
 
     # Método comprar pega o item na tabela para uma busca no google.
-    def comprar(self,row=int)-> None:
+    def comprar(self,row:int)-> None:
+        '''
+        
+        :param row: linha em qual se encontra o item que será comprado
+        :return: Não retorna nada
+        '''
+        self.linha_ = row
         item_name = self.tabela_demandas.item(row, 0).text()
         item_marca = self.tabela_demandas.item(row, 4).text()
         self.buscar_google(f'{item_name} da marca {item_marca}')
 
+
     # Método buscar_google faz uma busca no google do item escolhido.
-    def buscar_google(self,query):
+    def buscar_google(self,query: str)-> None:
+        '''
+        
+        :param query: str que é o link de onde foi tirado o item
+        :return: Não retorna nada
+        '''
         self.lista_de_url = []
         url = f"https://www.google.com/search?q={query}"
 
@@ -594,7 +675,11 @@ class Demandas(object):
             print("Falha ao fazer a solicitação.")
 
     # Método baixar_imagens baixa as imagens do google
-    def baixar_imagens(self,query=str) -> None:
+    def baixar_imagens(self,query:str) -> None:
+        '''
+            :param query: str que é o link de onde foi tirado o item
+            :return: Não retorna nada        
+        '''
         url = f"https://www.google.com/search?q={query}&tbm=isch"
         headers = {"User-Agent": "Mozilla/5.0"}
         response = requests.get(url, headers=headers)
@@ -620,7 +705,11 @@ class Demandas(object):
 
     # Método criar_scrol é um método gráfico que cria um scrol onde fica as imagens.
     # Scrol é diferente do frame, o scrol possui a barra de rolagem.
-    def criar_scrol(self,query=str) -> None:
+    def criar_scrol(self,query:str) -> None:
+        '''
+            :param query: str que é o link de onde foi tirado o item
+            :return: Não retorna nada
+        '''
         self.frame_scrol.show()
 
         h_layout_scrol = QtWidgets.QHBoxLayout()
@@ -694,6 +783,10 @@ class Demandas(object):
 
     # Método fechar_frame_scrol fecha o scrol quando solicitado.
     def fechar_frame_scrol(self) -> None:
+        '''
+        
+        :return: Não retorna nada
+        '''
 
         self.frame_scrol.deleteLater()
 
@@ -728,7 +821,16 @@ class Demandas(object):
                                       f'border: 2px solid #2E3D48;'
                                       f'border-radius: 10px;')
     # O método criar_frame_scrol cria um frame que será anexado ao scrol. Existe um frame para cada imagem.
-    def criar_frame_scrol(self, image_path=str,name=str,cont=int,link=str) -> QtWidgets.QFrame:
+    def criar_frame_scrol(self, image_path:str,name:str,cont:int,link:str) -> QtWidgets.QFrame:
+
+        '''
+
+        :param image_path: str que é o nome ao qual foi atribuido a imagem na máquina
+        :param name: str do nome do item
+        :param cont: int que representa uma posicao na lista de imagens
+        :param link: str do link da imagem
+        :return: retorna um frame que é usado em cada imagem. Cada imagem tem um frame
+        '''
 
         frame = QtWidgets.QFrame()
         frame.setFrameShape(QtWidgets.QFrame.Shape.Box)
@@ -756,6 +858,10 @@ class Demandas(object):
 
     # O método fechar_frame_foto fecha o frame da foto.
     def fechar_frame_foto(self) -> None:
+        '''
+
+        :return: Não retorna nada
+        '''
         self.frame_foto.deleteLater()
 
         self.frame_foto = QtWidgets.QFrame(self.frame)
@@ -772,9 +878,20 @@ class Demandas(object):
         self.frame_scrol.show()
 
     # O método abrir_tela_foto a bre um frame somente com a foto e o link para efetuar a compra.
-    def abrir_tela_foto(self,name=str,image_path=str,link=str) -> None:
+    def abrir_tela_foto(self,name:str,image_path:str,link:str) -> None:
+        '''
+
+        param image_path: str que é o nome ao qual foi atribuido a imagem na máquina
+        :param name: str do nome do item
+        :param link: str do link da imagem
+        :return: Não retorna nada
+        '''
         self.frame_foto.show()
         self.frame_scrol.hide()
+
+        self.atualizar_compra()
+
+        self.ler_database()
 
         fechar_frame_scroll = QtWidgets.QPushButton('Fechar',self.frame_foto)
         fechar_frame_scroll.clicked.connect(self.fechar_frame_foto)
@@ -824,26 +941,53 @@ class Demandas(object):
         image_label.setScaledContents(True)
 
     # Método open_link abre o link do google. Algumas maquinas por questão de segurança não vão permitir que isso aconteça.
-    def open_link(self,url=str) -> None:
+    def open_link(self,url:str) -> None:
+        '''
+
+        :param url: str do link da imagem
+        :return: Não retorna nada
+        '''
         webbrowser.open(url)
 
     # Métodos mousePressEvent, mouseMoveEvent e mouseReleaseEvent.
     # Usados para movimentar as telas que contem as imagens geradas pelo google.
-    def mousePressEvent(self, event, centralwidget):
+    def mousePressEvent(self, event: None, centralwidget:None)-> None:
+        '''
+        :param event: evento que acontece para a funcão ser chamada
+        :param centralwidget: frame
+        :return: Não retorna nada
+        '''
         if event.button() == Qt.MouseButton.LeftButton:
             centralwidget.setCursor(Qt.CursorShape.ClosedHandCursor)
         centralwidget.mouse_offset = event.pos()
-    def mouseReleaseEvent(self, event,centralwidget):
-            if event.button() == Qt.MouseButton.LeftButton:
-                    centralwidget.setCursor(Qt.CursorShape.OpenHandCursor)
-    def mouseMoveEvent(self, event, centralwidget):
-            if event.buttons() == Qt.MouseButton.LeftButton:
-                    new_pos = centralwidget.mapToParent(event.pos() - centralwidget.mouse_offset)
-                    centralwidget.move(new_pos)
-                    x, y = new_pos.x(), new_pos.y()
+    def mouseReleaseEvent(self, event: None, centralwidget:None)-> None:
+        '''
+        :param event: evento que acontece para a funcão ser chamada
+        :param centralwidget: frame
+        :return: Não retorna nada
+        '''
+        if event.button() == Qt.MouseButton.LeftButton:
+            centralwidget.setCursor(Qt.CursorShape.OpenHandCursor)
+    def mouseMoveEvent(self,  event: None, centralwidget:None)-> None:
+        '''
+        :param event: evento que acontece para a funcão ser chamada
+        :param centralwidget: frame
+        :return: Não retorna nada
+        '''
+
+        if event.buttons() == Qt.MouseButton.LeftButton:
+            new_pos = centralwidget.mapToParent(event.pos() - centralwidget.mouse_offset)
+            centralwidget.move(new_pos)
+            x, y = new_pos.x(), new_pos.y()
 
     # Método pesquisar usado para fazer pesquisa na tabela.
-    def pesquisar(self, pesquisa=str)->None:
+    def pesquisar(self, pesquisa:str)->None:
+
+        '''
+
+        :param pesquisa: str da pesquisa feita pelo usuário ao digitar no line edit
+        :return: Não retorna nada
+        '''
         for row in range(self.tabela_demandas.rowCount()):
             item = self.tabela_demandas.item(row, 0)
             item2 = self.tabela_demandas.item(row, 1)
@@ -854,7 +998,13 @@ class Demandas(object):
                     self.tabela_demandas.hideRow(row)
 
     # Método altera_table usado alterar a tabela e salvar as alterações.
-    def altera_table(self,nivel=str) -> None:
+    def altera_table(self,nivel:str) -> None:
+
+        '''
+
+        :param nivel: nivel é um str que india se a tabela está em estado de alteração ou não
+        :return: Não retorna nada
+        '''
         if self.analise_edit_tabela != nivel :
             colum_item = 0
             colum_status = 0
@@ -961,6 +1111,10 @@ class Demandas(object):
 
     # Método copiadora copia a tabela de demandas.
     def copiadora(self) -> None:
+        '''
+
+        :return: Não retorna nada
+        '''
         conta_linha = self.tabela_demandas.rowCount()
         conta_coluna = self.tabela_demandas.columnCount()
         self.tabela_alt.setColumnCount(conta_coluna)
@@ -975,6 +1129,10 @@ class Demandas(object):
 
     # Método copiadora2 copia a tabela de demandas para uma segunda tabela.
     def copiadora2(self) -> None:
+        '''
+
+        :return: Não retorna nada
+        '''
         conta_linha = self.tabela_demandas.rowCount()
         conta_coluna = self.tabela_demandas.columnCount()
         self.tabela_alt2.setColumnCount(conta_coluna)
@@ -989,6 +1147,10 @@ class Demandas(object):
 
     # Método moficacao verifica se ouve alguma modificação na tabela. E pega qual o item alterado.
     def modificao(self) -> None:
+        '''
+
+        :return: Não retorna nada
+        '''
         self.copiadora2()
 
         conta_linha = self.tabela_alt2.rowCount()
@@ -1002,8 +1164,21 @@ class Demandas(object):
                         self.lista_modificacoes.append(analisa_linha)
 
     # Método alt_banco altera o database no respectivo item alterado na tabela.
-    def alt_banco(self,item=str,descricao=str,unidade=str,quantidade=int,marca=str,precounico=str,precototal=str,status=str,data=str,id=int) -> None:
+    def alt_banco(self,item:str,descricao:str,unidade:str,quantidade:int,marca:str,precounico:str,precototal:str,status:str,data:str,id:int) -> None:
+        '''
 
+        :param item: str que representa o nome do item
+        :param descricao: str que representa a descrição do item
+        :param unidade: str que representa a unidade do item
+        :param quantidade: int que rerpresenta a quantidade de itens
+        :param marca: str que representa a marca do item
+        :param precounico: str que representa o preço unitário do item
+        :param precototal: str que representa o preço total do item
+        :param status: str que representa o status do item
+        :param data: str que representa a data do item
+        :param id: int que representa o id no banco de dados
+        :return:
+        '''
         try:
             conexao = mysql.connector.connect(
                 host="monorail.proxy.rlwy.net",
@@ -1022,3 +1197,130 @@ class Demandas(object):
         except mysql.connector.Error as error:
             print("Erro ao conectar ao MySQL:", error)
 
+    # O método atualizar_compra confirma a compra e atualiza o database
+    def atualizar_compra(self)->None:
+        '''
+
+        :return: Não retorna nada
+        '''
+        try:
+            conexao = mysql.connector.connect(
+                host="monorail.proxy.rlwy.net",
+                port=30980,
+                user="root",
+                password="RXlnFIuFEKMvnYsMaPWvDimjLdGyoJVv",
+                database="railway"
+            )
+            cursor = conexao.cursor()
+            id = self.tabela_demandas.verticalHeaderItem(self.linha_)
+
+            comando = f'UPDATE demanda SET status =  "Compra Realizada"  WHERE id = "{id.text()}"'
+
+            cursor.execute(comando)
+            conexao.commit()
+            cursor.close()
+            conexao.close()
+        except mysql.connector.Error as error:
+            print("Erro ao conectar ao MySQL:", error)
+
+    # O método confirmar_item confirma que o item foi recebido e atualiza o database
+    def confirmar_item(self,row:int) -> None:
+        '''
+
+        :param row: int que representa a linha que se encontra o item
+        :return: Não retorna nada
+        '''
+        print('e')
+        try:
+            conexao = mysql.connector.connect(
+                host="monorail.proxy.rlwy.net",
+                port=30980,
+                user="root",
+                password="RXlnFIuFEKMvnYsMaPWvDimjLdGyoJVv",
+                database="railway"
+            )
+            cursor = conexao.cursor()
+            id = self.tabela_demandas.verticalHeaderItem(row)
+            print(id)
+            comando = f'DELETE FROM demanda WHERE id = "{id.text()}"'
+            print('e')
+
+            cursor.execute(comando)
+            conexao.commit()
+            cursor.close()
+            conexao.close()
+            if not self.radioButton_Estoque.isChecked():
+                msg_box = QMessageBox()
+                msg_box.setIcon(QMessageBox.Icon.Information)
+                msg_box.setWindowTitle("AVISO")
+                msg_box.setText(f"Item deve ser entregue ao funcionário.")
+                msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+                reply = msg_box.exec()
+        except mysql.connector.Error as error:
+            print("Erro ao conectar ao MySQL:", error)
+
+        if self.radioButton_Estoque.isChecked():
+            print('e')
+            quantidade_inicial = 0
+            try:
+                conexao = mysql.connector.connect(
+                    host="monorail.proxy.rlwy.net",
+                    port=30980,
+                    user="root",
+                    password="RXlnFIuFEKMvnYsMaPWvDimjLdGyoJVv",
+                    database="railway"
+                )
+                cursor = conexao.cursor()
+
+                id = self.tabela_demandas.item(row, 0).text()
+
+                print('eww')
+                comando = "SELECT quantidade FROM estoque WHERE item = %s"
+                print('eww')
+                valores = (id,)
+                print('eww')
+                cursor.execute(comando, valores)
+                print('e')
+                resultado = cursor.fetchone()
+                print(id)
+
+                if resultado:
+                    print(quantidade_inicial)
+                    print(int(resultado[0]))
+                    quantidade_inicial += int(resultado[0])
+                    print(quantidade_inicial)
+                conexao.commit()
+                cursor.close()
+                conexao.close()
+
+            except mysql.connector.Error as error:
+                print("Erro ao conectar ao MySQL:", error)
+
+            try:
+                conexao = mysql.connector.connect(
+                    host="monorail.proxy.rlwy.net",
+                    port=30980,
+                    user="root",
+                    password="RXlnFIuFEKMvnYsMaPWvDimjLdGyoJVv",
+                    database="railway"
+                )
+                cursor = conexao.cursor()
+                quantidade = int(self.tabela_demandas.item(row, 3).text())
+                id = self.tabela_demandas.item(row, 0)
+                quantidade += quantidade_inicial
+                comando = f'UPDATE estoque SET  quantidade = "{str(quantidade)}" WHERE item = "{id.text()}"'
+
+                cursor.execute(comando)
+                conexao.commit()
+                cursor.close()
+                conexao.close()
+            except mysql.connector.Error as error:
+                print("Erro ao conectar ao MySQL:", error)
+
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Icon.Information)
+            msg_box.setWindowTitle("AVISO")
+            msg_box.setText(f"Compra Confirmada.")
+            msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+            reply = msg_box.exec()
+            self.ler_database()
