@@ -40,7 +40,7 @@ class Config(object):
 
         fechar_frame = QtWidgets.QPushButton('Fechar', self.frame)
         fechar_frame.clicked.connect(self.fechar_frame)
-        fechar_frame.setGeometry(QtCore.QRect(5, 5, 110, 30))
+        fechar_frame.setGeometry(QtCore.QRect(430, 5, 110, 30))
         fechar_frame.show()
         fechar_frame.setStyleSheet("QPushButton {\n"
                                           "                    border: 1px solid black ;\n"
