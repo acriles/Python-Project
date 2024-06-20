@@ -17,7 +17,13 @@ class Criar_Conta(object):
 
     # O método criar_conta_principal tem a função de criar uma tela.
     # É um método de interface gráfica. Este método cria frames, labels e botões, e conecta esses widgets às suas respectivas funções.
-    def criar_conta_principal(self, Form=None, tela=None) -> None:
+    def criar_conta_principal(self, Form:None, tela:None) -> None:
+        '''
+
+        :param Form: Tela atribuido no Login
+        :param tela: Instância do Login
+        :return: Não retorna nada
+        '''
         self.tela = tela
         self.form = Form
         self.frame = QtWidgets.QFrame(parent=self.form)
@@ -148,6 +154,10 @@ class Criar_Conta(object):
 
     # O método voltar volta a tela de Criar Conta para a tela de Login
     def voltar(self)-> None:
+        '''
+
+        :return: Não retorna nada
+        '''
         self.frame.hide()
         self.tela.frame.show()
         self.tela.label.show()
@@ -155,6 +165,10 @@ class Criar_Conta(object):
 
     # O método habilitar_botao_login permite que o botão login_2 seja clicado se todos os campos de dados estiverem preenchidos.
     def habilitar_botao_login(self)-> None:
+        '''
+
+        :return: Não retorna nada
+        '''
         if len(self.user.text()) == 0 or len(self.user_2.text()) == 0 or len(self.password.text()) == 0 or len(self.password_2.text()) == 0:
             self.login_2.setEnabled(False)
         else:
@@ -163,6 +177,10 @@ class Criar_Conta(object):
     # O método toggle_password_visibility permite alternar a visibilidade da senha,
     # permitindo que o usuário escolha entre exibir ou ocultar a senha enquanto digita.
     def toggle_password_visibility(self) -> None:
+        '''
+
+        :return: Não retorna nada
+        '''
         if self.state == True:
             self.password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Normal)
             icon = QtGui.QIcon(
@@ -182,6 +200,10 @@ class Criar_Conta(object):
     # O método toggle_password_visibility_2 permite alternar a visibilidade da senha de confirmação,
     # permitindo que o usuário escolha entre exibir ou ocultar a senha de confirmação enquanto digita.
     def toggle_password_visibility_2(self)-> None:
+        '''
+
+        :return: Não retorna nada
+        '''
         if self.state_2 == True:
             self.password_2.setEchoMode(QtWidgets.QLineEdit.EchoMode.Normal)
             icon = QtGui.QIcon(
@@ -200,6 +222,11 @@ class Criar_Conta(object):
 
     # O método check_space verifica se o texto tem algum espaço e habilita ou desabilita o botão de criar a conta de acordo
     def check_space(self, text=str)-> None:
+        '''
+
+        :param text: str que representa o texto que será analisado
+        :return: Não retorna nada
+        '''
         if ' ' in text:
             self.warning_label.show()
             self.warning_label.setText('O login não pode conter espaços.')
@@ -212,6 +239,11 @@ class Criar_Conta(object):
     # Esse método Definir_Nomes tem a função gráfica de definir os nomes de alguns labels e botões fixos.
     # Ou seja, que não mudam os nomes.
     def Definir_Nomes(self, Form=None) -> None:
+        '''
+
+        :param Form: Tela
+        :return: Não retorna nada
+        '''
         _translate = QtCore.QCoreApplication.translate
         self.user.setPlaceholderText(_translate("Form", "Nome Completo"))
         self.password.setPlaceholderText(_translate("Form", "Senha"))
@@ -222,6 +254,10 @@ class Criar_Conta(object):
 
     # O método criar_conta faz conexão com o database e verifica se a conta existe. Se não existe a conta é criada.
     def criar_conta(self)-> None:
+        '''
+
+        :return: Não retorna nada
+        '''
         conexao = mysql.connector.connect(
             host="monorail.proxy.rlwy.net",
             port=30980,
