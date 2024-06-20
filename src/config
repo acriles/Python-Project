@@ -11,7 +11,13 @@ class Config(object):
 
     # O método Tela_configuracao tem a função de criar uma tela.
     # É um método de interface gráfica. Este método cria frames, labels e botões, e conecta esses widgets às suas respectivas funções.
-    def Tela_configuracao(self, Form,dados):
+    def Tela_configuracao(self, Form: None,dados:None)-> None:
+        '''
+
+        :param Form: Tela
+        :param dados: Instância da tela onde a configuração for chamdada
+        :return: Não retorna nada
+        '''
         self.dados = dados
         super().__init__()
 
@@ -31,6 +37,27 @@ class Config(object):
         font = QtGui.QFont()
         font.setPointSize(30)
         self.Titulo.setFont(font)
+
+        fechar_frame = QtWidgets.QPushButton('Fechar', self.frame)
+        fechar_frame.clicked.connect(self.fechar_frame)
+        fechar_frame.setGeometry(QtCore.QRect(5, 5, 110, 30))
+        fechar_frame.show()
+        fechar_frame.setStyleSheet("QPushButton {\n"
+                                          "                    border: 1px solid black ;\n"
+                                          "                    border-radius: 10px;\n"
+                                          "                    background-color: (131, 131, 131);\n"
+                                          "                    color:black;\n"
+                                          "                }\n"
+                                          "\n"
+                                          "                QPushButton:hover {\n"
+                                          "                    background-color: #DDDDDD;  /* Change this to your desired hover color */\n"
+                                          "                    color: rgb(0, 0, 0);\n"
+                                          "                }\n"
+                                          "\n"
+                                          "                QPushButton:pressed {\n"
+                                          "                    background-color: white;  /* Change this to your desired pressed color */\n"
+                                          "                    color: black;\n"
+                                          "                }")
 
         icon = QIcon('configuracao.ico')
         pixmap = icon.pixmap(50, 50)
@@ -234,12 +261,22 @@ class Config(object):
 
     # Método fecharJanela usado para fechar a tela de configurações quando clicado fora da tela.
 
-    def fecharJanela(self, Form=None) -> None:
+    def fecharJanela(self, Form:None) -> None:
+        '''
+
+        :param Form: Tela
+        :return: Não retorna nada
+        '''
         Form.close()
 
     # Esse método Definir_Nomes tem a função gráfica de definir os nomes de alguns labels e botões fixos.
     # Ou seja, que não mudam os nomes.
-    def Definir_Nomes(self, Form=None) -> None:
+    def Definir_Nomes(self, Form:None) -> None:
+        '''
+
+        :param Form: Tela
+        :return: Não retorna nada
+        '''
         _translate = QtCore.QCoreApplication.translate
         self.label.setText(_translate("Form", "FONTE :"))
         self.label_7.setText(_translate("Form", "TAMANHO DA FONTE: "))
@@ -253,7 +290,13 @@ class Config(object):
         self.white_radio.setText(_translate("Form", "CLARO"))
 
     # Método createButton é usado para criar um botão que representa as cores da aplicação e retorna-lo.
-    def createButton(self, color=str, x_position=int) -> QtWidgets.QPushButton:
+    def createButton(self, color:str, x_position:int) -> QtWidgets.QPushButton:
+        '''
+
+        :param color: Cor do botão
+        :param x_position: posicao no eixo x onde ficará o botão
+        :return: Retorna um botão
+        '''
         button = QtWidgets.QPushButton("", self.frame_6)
         button.setGeometry(QRect(30 + x_position, 120, 21, 21))
         cor = 'white'
@@ -271,7 +314,13 @@ class Config(object):
         return button
 
     # O método mudar_layout altera o layout da aplicação para a cor especificada ao clicar em um botão de cor.
-    def mudar_layout(self, clicked_button=None, color=str) -> None:
+    def mudar_layout(self, clicked_button:None, color:str) -> None:
+        '''
+
+        :param clicked_button: Botão do layout que foi escolhido
+        :param color: Cor do layout
+        :return: Não retorna nada
+        '''
         self.color = color
         buttons = [child for child in self.frame_6.children() if isinstance(child, QtWidgets.QPushButton)]
 
@@ -308,6 +357,10 @@ class Config(object):
 
     # Método change_color muda cor das labels e Botões da aplicação.
     def change_color(self) -> None:
+        '''
+
+        :return: Não retorna nada
+        '''
         color = None
 
         if self.black_radio.isChecked():
@@ -332,6 +385,10 @@ class Config(object):
                                      f'font: {self.font};')
     # Método change_font muda fonte das labels e Botões da aplicação.
     def change_font(self) -> None:
+        '''
+
+        :return: Não retorna nada
+        '''
         tamanho = int(self.doubleSpinBox.value())
         self.font = self.fontComboBox.currentFont().family()
         for label in self.frame.findChildren(QtWidgets.QLabel):
@@ -340,12 +397,22 @@ class Config(object):
             radio_button.setStyleSheet(f'{original_style} color: none; font:  {tamanho}px {self.font};')
 
     # Método set_radio_and_change_color ativa o radio_button especifico e chama a função change_color
-    def set_radio_and_change_color(self, radio_button=None)-> None:
+    def set_radio_and_change_color(self, radio_button:None)-> None:
+        '''
+
+        :param radio_button:  radio button que ativou a função
+        :return: Não retorna nada
+        '''
         radio_button.setChecked(True)
         self.change_color()
 
     # Método retornar_padrao retorna as cores a cor padrão do software.
-    def retornar_padrao(self,Form=None)-> None:
+    def retornar_padrao(self,Form:None)-> None:
+        '''
+
+        :param Form: Tela
+        :return: Não retorna nada
+        '''
         self.white_radio.setChecked(True)
         #self.clicked_button.setText("✔")
         self.doubleSpinBox.setProperty("value", 12.0)
@@ -374,13 +441,17 @@ class Config(object):
         self.font = self.fontComboBox.currentFont().family()
 
     # Método save_ Salva as alterações.
-    def save_(self,Form=None)-> None:
+    def save_(self,Form:None)-> None:
+        '''
+
+        :param Form: Tela
+        :return: Não retorna nada
+        '''
         msg_box = QMessageBox()
         msg_box.setIcon(QMessageBox.Icon.Information)
         msg_box.setWindowTitle("AVISO")
         msg_box.setText("Confirmar?")
-        icon = QIcon(
-            'C:\\Users\\luist\\OneDrive\\Área de Trabalho\\Ti\\Nova pasta\\HC-UFMG\\SGL\\warning.ico')  # Substitua pelo caminho real para o seu arquivo de ícone
+        icon = QIcon('warning.ico')  # Substitua pelo caminho real para o seu arquivo de ícone
         msg_box.setWindowIcon(icon)
         msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         reply = msg_box.exec()
@@ -402,7 +473,12 @@ class Config(object):
 
     # O método load carrega as configurações salvas de um arquivo ou banco de dados e aplica essas configurações ao layout.
     # Se não houver informações salvas, utiliza os valores padrão.
-    def load(self, Form=None) -> None:
+    def load(self, Form:None) -> None:
+        '''
+
+        :param Form: Tela
+        :return: Não retorna nada
+        '''
         if self.settings.contains("tema"):
             font_name = self.settings.value("font", defaultValue="")
             backcolocor = self.settings.value("tema", defaultValue="")
@@ -444,37 +520,77 @@ class Config(object):
         if self.backcolocor == (QColor(93, 173, 226)).name():
             self.blue_radio.setChecked(True)
 
-    def paintEvent(self, event=None)-> None:
+    def paintEvent(self, event:None)-> None:
+        '''
+
+        :param event: A função é chamdad quando o certo evento acontece
+        :return: Não retorna nada
+        '''
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.fillRect(self.rect(), Qt.GlobalColor.transparent)
 
     # Métodos mousePressEvent, mouseMoveEvent, mouseReleaseEvent, mousePressEvent_2, mouseMoveEvent_2 e mouseReleaseEvent_2
     # Usados para movimentar a tela de configurações.
-    def mousePressEvent(self, event=None)-> None:
+    def mousePressEvent(self, event:None)-> None:
+        '''
+
+        :param event: A função é chamdad quando o certo evento acontece
+        :return: Não retorna nada
+        '''
         # Verifica se o clique do mouse ocorre dentro da barra de título (pode ser adaptado conforme necessário)
         if event.button() == Qt.MouseButton.LeftButton and event.y() < 30:
             self.draggable = True
             self.offset = event.pos()
 
-    def mouseMoveEvent(self, event=None)-> None:
+    def mouseMoveEvent(self, event:None)-> None:
+        '''
+
+        :param event: A função é chamdad quando o certo evento acontece
+        :return: Não retorna nada
+        '''
         # Atualiza a posição da janela enquanto arrasta
         if self.draggable:
             self.move(self.pos() + event.pos() - self.offset)
 
-    def mouseReleaseEvent(self, event=None)-> None:
+    def mouseReleaseEvent(self, event:None)-> None:
         # Seta draggable para False quando o botão do mouse é liberado
         if event.button() == Qt.MouseButton.LeftButton:
             self.draggable = False
-    def mousePressEvent_2(self, event=None, centralwidget=None)-> None:
+    def mousePressEvent_2(self, event:None, centralwidget:None)-> None:
+        '''
+
+        :param event: A função é chamdad quando o certo evento acontece
+        :param centralwidget: Frame
+        :return: Não retorna nada
+        '''
         if event.button() == Qt.MouseButton.LeftButton:
             centralwidget.setCursor(Qt.CursorShape.ClosedHandCursor)
         centralwidget.mouse_offset = event.pos()
-    def mouseReleaseEvent_2(self, event=None,centralwidget=None)-> None:
-            if event.button() == Qt.MouseButton.LeftButton:
-                    centralwidget.setCursor(Qt.CursorShape.OpenHandCursor)
-    def mouseMoveEvent_2(self, event=None, centralwidget=None)-> None:
-            if event.buttons() == Qt.MouseButton.LeftButton:
-                    new_pos = centralwidget.mapToParent(event.pos() - centralwidget.mouse_offset)
-                    centralwidget.move(new_pos)
-                    x, y = new_pos.x(), new_pos.y()
+    def mouseReleaseEvent_2(self, event:None,centralwidget:None)-> None:
+        '''
+
+        :param event: A função é chamdad quando o certo evento acontece
+        :param centralwidget: Frame
+        :return: Não retorna nada
+        '''
+        if event.button() == Qt.MouseButton.LeftButton:
+            centralwidget.setCursor(Qt.CursorShape.OpenHandCursor)
+    def mouseMoveEvent_2(self, event:None, centralwidget:None)-> None:
+        '''
+
+        :param event: A função é chamdad quando o certo evento acontece
+        :param centralwidget: Frame
+        :return: Não retorna nada
+        '''
+        if event.buttons() == Qt.MouseButton.LeftButton:
+            new_pos = centralwidget.mapToParent(event.pos() - centralwidget.mouse_offset)
+            centralwidget.move(new_pos)
+            x, y = new_pos.x(), new_pos.y()
+    # Esse método fechar_frame fecha a tela de configurações
+    def fechar_frame(self)->None:
+        '''
+
+        :return: Não retorna nada
+        '''
+        self.frame.close()
