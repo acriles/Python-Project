@@ -53,6 +53,7 @@ Requisitos do Sistema:
 
    ## Diagrama UML
 
+      ![Stoquee UML](https://github.com/acriles/Python-Project/assets/129131858/efaec068-2f16-4cac-b4a1-2f67e0e66bf8)
 
 ## Links e Referências
 
