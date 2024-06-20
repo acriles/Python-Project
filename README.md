@@ -11,29 +11,28 @@ O programa Stoquee consiste em um app desktop para gerenciamento de estoque, ond
 
 O projeto atualmente inclui as seguintes funcionalidades:
 
-- **Funcionalidade Placeholder:** Placeholder para funções mais complexas que serão adicionadas posteriormente.
+- **Configurações Personalizadas:** Permite aos usuários personalizar as configurações da aplicação, como temas visuais e preferências de interface.
+- **Gestão de Demandas de Produtos:** Gerencia as demandas de produtos, exibindo e manipulando informações como item, marca, quantidade, status e data de pedido.
+- **Criação de Contas de Usuário:** Permite a criação de novas contas de usuário dentro da aplicação.
+- **Gestão de Estoque:** Controla todas as operações relacionadas ao inventário da empresa, incluindo entradas, saídas e atualizações de produtos.
+- **Integração com Web para Pesquisa de Produtos:** Permite a pesquisa de produtos na web para atualização automática de informações de estoque.
 
-- **Funcionalidade Placeholder:** Placeholder para funções mais complexas que serão adicionadas posteriormente.
 
-- **Funcionalidade Placeholder:** Placeholder para funções mais complexas que serão adicionadas posteriormente.
 
-- **Funcionalidade Placeholder:** Placeholder para funções mais complexas que serão adicionadas posteriormente.
-
-(Ao adicionar novas funcionalidades, atualize esta seção conforme o projeto evolui.)
 
 
 ## Bibliotecas Utilizadas
 
 O projeto utiliza as seguintes bibliotecas:
 
-- mysql-connector-python: Biblioteca para conexão e interação com bancos de dados MySQL.
-- screenshot: Biblioteca para captura de tela em Python.
-- google_images_search: Biblioteca para pesquisa e download de imagens do Google.
-- google: Biblioteca para pesquisa e interação com a API do Google.
-- PyQt6: Biblioteca para desenvolvimento de interfaces gráficas.
-- Selenium: Biblioteca para automação de navegadores web.
-- Requests: Biblioteca para realizar requisições HTTP.
-- BeautifulSoup: Biblioteca para extração de dados de páginas web.
+-PyQt6
+-webbrowser
+-requests
+-BeautifulSoup
+-mysql.connector
+-os
+-sys
+-functools.partial 
 
 ## Licença
 
@@ -46,9 +45,13 @@ Requisitos do Sistema:
 - Python 3.x (Recomendado: => 3.10)
 
 1. Abra o prompt de comando do Windows.
-2. Navegue até o diretório do projeto
+2. Navegue até o diretório da pasta src do projeto
 3. Execute o seguinte comando para instalar as dependências necessárias: pip install -r requirements.txt
-4. Execute o seguinte comando para iniciar o programa: python main.py
+4. Execute o seguinte comando para iniciar o programa: python login.py
+
+   Recomendamos o uso de PyCharm para execução
+
+   ## Diagrama UML
 
 
 ## Links e Referências
